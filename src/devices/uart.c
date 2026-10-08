@@ -163,9 +163,14 @@ uint32_t u8250_read(u8250_state_t *uart, uint32_t addr)
             return uart->dlh;
         return uart->ier;
     case U8250_IIR_FCR:
-        ret = (uart->current_intr << 1) | (uart->pending_intrs ? 0 : 1);
-        if (uart->current_intr == U8250_INTR_THRE)
-            uart->pending_intrs &= ~(1 << uart->current_intr);
+        if (uart->pending_intrs & 1) {
+            ret = 0x04; /* received data available */
+        } else if (uart->pending_intrs & (1 << U8250_INTR_THRE)) {
+            ret = 0x02; /* THR empty; reading clears it */
+            uart->pending_intrs &= ~(1 << U8250_INTR_THRE);
+        } else {
+            ret = 0x01; /* no interrupt pending */
+        }
         return ret;
     case U8250_LCR:
         return uart->lcr;

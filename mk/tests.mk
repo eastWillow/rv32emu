@@ -331,6 +331,12 @@ check-rvv-smoke: $(BIN)
 endif
 check: $(CHECK_TARGETS)
 
+.PHONY: check-system-interrupts
+check-system-interrupts: $(BIN)
+	$(Q)$(MAKE) -C tests/system/interrupts ROOT=$(CURDIR) \
+		OUT=$(CURDIR)/$(OUT)/system-interrupts \
+		CROSS_COMPILE=$(CROSS_COMPILE) EMULATOR=$(CURDIR)/$(BIN) check
+
 # System tests
 EXPECTED_aes_sha1 = 89169ec034bec1c6bb2c556b26728a736d350ca3  -
 misalign: $(BIN) artifact

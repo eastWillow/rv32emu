@@ -226,6 +226,32 @@ jobs:
     - name: Architecture test
       run: .ci/riscv-tests.sh
 
+  system-interrupts-x64:
+    name: x64 ${{ matrix.compiler }} system interrupts
+    needs: [detect-code-related-file-changes]
+    if: needs.detect-code-related-file-changes.outputs.has_code_related_changes == 'true'
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc, clang]
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        submodules: 'true'
+
+    - name: Set up build environment
+      uses: ./.github/actions/setup-build
+      with:
+        compiler: ${{ matrix.compiler }}
+        llvm: 'false'
+        riscv-toolchain: 'true'
+        cache-suffix: system-interrupts-${{ matrix.compiler }}
+
+    - name: System interrupt regressions
+      run: .ci/system-interrupts.sh
+
   # Boot tests are the long pole of the workflow, so each configuration gets
   # its own runner. T2C is clang only because it goes through LLVM.
   boot-tests-x64:
