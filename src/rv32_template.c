@@ -165,6 +165,7 @@ RVOP(jal, {
                 RVOP_CHAIN_TAIL(rv, target, cycle, PC);                        \
             block_t *block = block_find(&rv->block_map, PC);                   \
             if (block) {                                                       \
+                RVOP_CHECK_CHAIN_BUDGET(rv, cycle, PC);                       \
                 /* Direct replacement at computed index */                     \
                 ir->branch_table->PC[bht_idx] = PC;                            \
                 ir->branch_table->target[bht_idx] = block->ir_head;            \
@@ -186,6 +187,7 @@ RVOP(jal, {
             bht_record_target(ir->branch_table, PC, rv->csr_satp);           \
             if (lookup.freq >= THRESHOLD)                                    \
                 goto end_op;                                                 \
+            RVOP_CHECK_CHAIN_BUDGET(rv, cycle, PC);                           \
             MUST_TAIL return block->ir_head->impl(rv, block->ir_head, cycle, \
                                                   PC);                       \
         }                                                                    \

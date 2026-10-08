@@ -3,7 +3,7 @@ OUT ?= $(ROOT)/build/system-interrupts
 CROSS_COMPILE ?= riscv64-unknown-elf-
 EMULATOR ?= $(ROOT)/build/rv32emu
 
-PROGRAMS := uart-iir
+PROGRAMS := uart-iir csr-pending timer-chain
 ELFS := $(addprefix $(OUT)/,$(addsuffix .elf,$(PROGRAMS)))
 BINS := $(ELFS:.elf=.bin)
 

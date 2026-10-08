@@ -1033,6 +1033,22 @@ FORCE_INLINE bool insn_is_branch(uint16_t opcode)
     MUST_TAIL return (target)->impl(rv, target, cycle, PC)
 #endif
 
+#if RV32_HAS(SYSTEM)
+/* A learned edge must not keep the interpreter away from interrupt polling
+ * forever. Check before changing last_pc: the target has not executed yet.
+ */
+#define RVOP_CHECK_CHAIN_BUDGET(rv, cycle, pc_value)                  \
+    do {                                                             \
+        if (unlikely((cycle) >= (rv)->branch_chain_cycle_target)) {  \
+            (rv)->csr_cycle = (cycle);                               \
+            (rv)->PC = (pc_value);                                   \
+            return true;                                             \
+        }                                                            \
+    } while (0)
+#else
+#define RVOP_CHECK_CHAIN_BUDGET(rv, cycle, pc_value) ((void) 0)
+#endif
+
 #if RV32_HAS_PACKED_TAIL
 #define RVOP_TAIL_INTRA_IMPL(rv, impl, target, cycle, PC) \
     MUST_TAIL return (impl) (rv, target, cycle, PC)
@@ -1052,6 +1068,7 @@ FORCE_INLINE bool insn_is_branch(uint16_t opcode)
  * RVOP_CHAIN_TAIL follows the learned edge of a jump or compressed branch the
  * same way. Builds without packing always follow it through RVOP_TAIL_INTER,
  * which in WASM yields to the browser once the block depth runs out.
+ * System builds also stop at the rv_step() cycle limit for interrupt polls.
  */
 #if RV32_HAS_PACKED_TAIL
 #define RVOP_NATIVE_BRANCH_TAIL(rv, target, cycle, PC)              \
@@ -1069,6 +1086,7 @@ FORCE_INLINE bool insn_is_branch(uint16_t opcode)
     } while (0)
 #define RVOP_CHAIN_TAIL(rv, target, cycle, PC)  \
     do {                                        \
+        RVOP_CHECK_CHAIN_BUDGET(rv, cycle, PC); \
         last_pc = (PC);                         \
         RVOP_TAIL_INTER(rv, target, cycle, PC); \
     } while (0)
@@ -1112,6 +1130,7 @@ FORCE_INLINE bool insn_is_branch(uint16_t opcode)
                     if (taken) {                                          \
                         IIF(RV32_HAS(SYSTEM))(                            \
                             if (!rv->trap_cnt) {                          \
+                                RVOP_CHECK_CHAIN_BUDGET(rv, cycle, PC);   \
                                 last_pc = PC;                             \
                                 RVOP_TAIL(rv, taken, cycle, PC);          \
                             },                                            \
@@ -3644,8 +3663,10 @@ void rv_step(void *arg)
 
     /* A reboot starts rv_step again with the reset guest's cycle counter. */
     const uint64_t cycles_target = rv->csr_cycle + cycles;
-#if RV32_HAS_PACKED_TAIL
+#if RV32_HAS_PACKED_TAIL || RV32_HAS(SYSTEM)
     rv->branch_chain_cycle_target = cycles_target;
+#endif
+#if RV32_HAS_PACKED_TAIL
 #if RV32_HAS(JIT)
     set_reset(&pc_set);
 #endif
@@ -3716,7 +3737,7 @@ void rv_step(void *arg)
             rv_log_fatal("Failed to allocate or translate block at PC=0x%08x",
                          rv->PC);
             rv->halt = true;
-#if RV32_HAS_PACKED_TAIL
+#if RV32_HAS_PACKED_TAIL || RV32_HAS(SYSTEM)
             rv->branch_chain_cycle_target = 0;
 #endif
             return;
@@ -3898,9 +3919,11 @@ void rv_step(void *arg)
     }
 #endif
 
-#if RV32_HAS_PACKED_TAIL
+#if RV32_HAS_PACKED_TAIL || RV32_HAS(SYSTEM)
     rv->branch_chain_cycle_target = 0;
+#endif
 
+#if RV32_HAS_PACKED_TAIL
     /* Incremental memory maintenance: reclaim unused pages periodically.
      * Native user mode takes longer step slices, so count retired cycles and
      * keep the cadence of 65536 calls with the default 100-cycle slice.
