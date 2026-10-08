@@ -46,6 +46,14 @@ build-linux-image: $(LINUX_IMAGE_SRC)
 	$(Q)./tools/build-linux-image.sh
 	$(Q)$(PRINTF) "Build done.\n"
 
+# Build a pinned Apache NuttX image for the rv32emu system platform.
+build-nuttx-image: $(NUTTX_DATA) $(NUTTX_APPS_DATA)
+	$(Q)NUTTX_DIR=$(NUTTX_DATA) NUTTX_APPS_DIR=$(NUTTX_APPS_DATA) \
+		NUTTX_REVISION=$(NUTTX_VERSION) \
+		NUTTX_APPS_REVISION=$(NUTTX_APPS_VERSION) \
+		./tools/build-nuttx-image.sh
+	$(Q)$(PRINTF) "Build done.\n"
+
 # Code Formatting (tool detection deferred to recipe)
 # Uses find -print0 | xargs -0 for safe handling of paths with special characters
 format:
@@ -74,6 +82,6 @@ format:
 	find . \( $$PRUNE_ARGS \) -prune -o \( -name '*.html' -o -name '*.js' \) -print0 | xargs -0 $$NPX prettier --write --log-level silent
 	$(Q)$(call notice, All files formatted.)
 
-.PHONY: build-linux-image format
+.PHONY: build-linux-image build-nuttx-image format
 
 endif # _MK_TOOLS_INCLUDED

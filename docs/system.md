@@ -31,6 +31,38 @@ $ make system
 T2C runs compute-bound guests faster still; see
 [benchmark.md](benchmark.md#system-emulation) for measurements.
 
+## Boot Apache NuttX
+
+The NuttX demo uses pinned Apache NuttX and `nuttx-apps` revisions with the
+configuration in `assets/system/configs/nuttx.config`. The image builder
+downloads the pinned sources into `/tmp`, configures the stock `rv-virt` board
+for rv32emu, and writes the result under `build/nuttx-image/`:
+
+```shell
+$ make build-nuttx-image
+$ make system_interpreter_defconfig
+$ make
+$ build/rv32emu -k build/nuttx-image/nuttx.bin \
+      -x vblk:build/nuttx-image/dummy.img,rootfs
+```
+
+An interactive boot ends at the `nsh>` prompt. A basic validation session is:
+
+```text
+nsh> help
+nsh> uname -a
+nsh> ps
+nsh> free
+nsh> hello
+nsh> getprime
+nsh> time "sleep 3"
+nsh> ostest
+```
+
+`ostest` is complete only when it reports its final result and returns to NSH.
+The builder records the exact NuttX and apps revisions in
+`build/nuttx-image/metadata.json`.
+
 ## Rootfs: ext4 disk or initrd
 
 By default (`CONFIG_ROOTFS_EXT4=y`), the guestOS mounts its rootfs from an

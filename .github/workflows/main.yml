@@ -32,6 +32,7 @@ jobs:
               src/**
               tests/**
               tools/**
+              assets/system/configs/**
               .clang-format
               Dockerfile
               Makefile

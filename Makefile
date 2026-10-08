@@ -395,6 +395,7 @@ distclean: cleanconfig
 	$(Q)$(RM) -r $(OUT)/id1 $(DEMO_DIR) $(OUT)/mini-gdbstub $(OUT)/devices
 	$(Q)$(RM) *.zip
 	$(Q)$(RM) -r $(OUT)/linux-x86-softfp $(OUT)/riscv32 $(OUT)/linux-image
+	$(Q)$(RM) -r $(OUT)/nuttx-image
 	$(Q)$(RM) $(OUT)/sha1sum-* $(OUT)/.stamp-* $(OUT)/.verify_result
 	$(Q)$(RM) $(OUT)/rv32emu-prebuilt*.tar.gz $(OUT)/rv32emu-prebuilt-sail-*
 	$(Q)$(call notice, [OK])
