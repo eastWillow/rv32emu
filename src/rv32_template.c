@@ -162,11 +162,13 @@ RVOP(jal, {
             const uint32_t bht_idx = (PC >> 2) & (HISTORY_SIZE - 1);           \
             if (ir->branch_table->PC[bht_idx] == PC &&                         \
                 ir->branch_table->target[bht_idx]) {                           \
+                RVOP_CHECK_CHAIN_BUDGET(rv, cycle, PC);                       \
                 MUST_TAIL return ir->branch_table->target[bht_idx]->impl(      \
                     rv, ir->branch_table->target[bht_idx], cycle, PC);         \
             }                                                                  \
             block_t *block = block_find(&rv->block_map, PC);                   \
             if (block) {                                                       \
+                RVOP_CHECK_CHAIN_BUDGET(rv, cycle, PC);                       \
                 /* Direct replacement at computed index */                     \
                 ir->branch_table->PC[bht_idx] = PC;                            \
                 ir->branch_table->target[bht_idx] = block->ir_head;            \
@@ -189,6 +191,7 @@ RVOP(jal, {
             bht_record_target(ir->branch_table, PC, rv->csr_satp);           \
             if (lookup.freq >= THRESHOLD)                                    \
                 goto end_op;                                                 \
+            RVOP_CHECK_CHAIN_BUDGET(rv, cycle, PC);                           \
             MUST_TAIL return block->ir_head->impl(rv, block->ir_head, cycle, \
                                                   PC);                       \
         }                                                                    \
@@ -263,6 +266,7 @@ RVOP(jalr, {
         IIF(RV32_HAS(SYSTEM))(                                              \
             {                                                               \
                 if (!rv->trap_cnt) {                                        \
+                    RVOP_CHECK_CHAIN_BUDGET(rv, cycle, PC);                 \
                     last_pc = PC;                                           \
                     MUST_TAIL return untaken->impl(rv, untaken, cycle, PC); \
                 }                                                           \
@@ -286,6 +290,7 @@ RVOP(jalr, {
         IIF(RV32_HAS(SYSTEM))(                                              \
             {                                                               \
                 if (!rv->trap_cnt) {                                        \
+                    RVOP_CHECK_CHAIN_BUDGET(rv, cycle, PC);                 \
                     last_pc = PC;                                           \
                     MUST_TAIL return taken->impl(rv, taken, cycle, PC);     \
                 }                                                           \
