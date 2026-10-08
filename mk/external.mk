@@ -167,6 +167,16 @@ SIMPLEFS_DATA_URL := git clone https://github.com/sysprog21/simplefs $(SIMPLEFS_
 SIMPLEFS_DATA_SHA := f04a3044bc64195ae59cea064c4bf330132de269
 SIMPLEFS_DATA_SHA_CMD := $(SHA1SUM)
 
+# Apache NuttX system-mode demo. Full revisions keep the image reproducible
+# even when the upstream default branches move.
+NUTTX_VERSION := 6e41066215f7d46832bcded77e93bed1fc04092e
+NUTTX_DATA ?= /tmp/nuttx
+NUTTX_REPO := https://github.com/apache/nuttx.git
+
+NUTTX_APPS_VERSION := 1f8cac8b87a925403340947582b026cf2a117423
+NUTTX_APPS_DATA ?= /tmp/nuttx-apps
+NUTTX_APPS_REPO := https://github.com/apache/nuttx-apps.git
+
 # Download Rules Template
 
 # Generate download/extract/verify rules for each external target
@@ -186,6 +196,20 @@ endef
 # Generate rules for static external data (known URLs at parse time)
 EXTERNAL_DATA_STATIC := DOOM QUAKE TIMIDITY BUILDROOT SIMPLEFS
 $(foreach T,$(EXTERNAL_DATA_STATIC),$(eval $(call download-extract-verify,$(T))))
+
+$(NUTTX_DATA):
+	$(call prologue,$@)
+	$(Q)git init -q $@
+	$(Q)git -C $@ remote add origin $(NUTTX_REPO)
+	$(Q)git -C $@ fetch -q --depth=1 origin $(NUTTX_VERSION)
+	$(Q)git -C $@ checkout -q --detach FETCH_HEAD
+
+$(NUTTX_APPS_DATA):
+	$(call prologue,$@)
+	$(Q)git init -q $@
+	$(Q)git -C $@ remote add origin $(NUTTX_APPS_REPO)
+	$(Q)git -C $@ fetch -q --depth=1 origin $(NUTTX_APPS_VERSION)
+	$(Q)git -C $@ checkout -q --detach FETCH_HEAD
 
 # Linux kernel: special rule with lazy network detection (avoids parse-time wget)
 # Detects latest patch version and SHA only when this target is actually built

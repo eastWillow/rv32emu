@@ -26,6 +26,9 @@ $(eval $(call test-framework,set,test-set.o,$(OUT)/utils.o,))
 # IO test: guest memory accessors reject out-of-range addresses
 $(eval $(call test-framework,io,test-io.o,$(OUT)/io.o $(OUT)/log.o,))
 
+# PLIC test: QEMU context-1 offsets alias rv32emu's supervisor target
+$(eval $(call test-framework,plic,test-plic.o,$(OUT)/devices/plic.o,))
+
 # Decode test: reserved encodings and JIT indirect-target history updates
 $(eval $(call test-framework,decode,test-decode.o,$(OUT)/decode.o,))
 
@@ -48,12 +51,14 @@ $(eval $(call run-test-simple,path))
 $(eval $(call run-test-simple,set))
 $(eval $(call run-test-simple,elf))
 $(eval $(call run-test-simple,io))
+$(eval $(call run-test-simple,plic))
 $(eval $(call run-test-simple,decode))
 $(eval $(call run-test-simple,constopt))
 
 # Main Test Target
 
-tests: run-test-cache run-test-block-edge run-test-map run-test-path run-test-elf run-test-io run-test-decode run-test-set run-test-constopt
+tests: run-test-cache run-test-block-edge run-test-map run-test-path run-test-elf \
+	run-test-io run-test-plic run-test-decode run-test-set run-test-constopt
 
 # Integration Tests (run emulator with test programs)
 
