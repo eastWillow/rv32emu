@@ -2360,13 +2360,15 @@ retranslate:
         }
 #endif
 
-        /* If instruction fetch failed due to trap (page fault, etc.), break.
-         * The caller checks rv->trap_cnt and invokes trap handler.
-         * Note: insn==0 alone is ambiguous; we verify trap state explicitly.
+        /* If instruction fetch failed due to a trap, do not decode the zero
+         * placeholder. An inline handler may already have redirected SEPC,
+         * clearing trap_cnt; need_handle_signal still marks this fetch as
+         * abandoned. Zero alone is ambiguous because it can be a real
+         * instruction encoding, so check both signals.
          */
         if (!insn) {
 #if RV32_HAS(SYSTEM)
-            if (rv->trap_cnt)
+            if (rv->trap_cnt || need_handle_signal)
                 break;
             /* Zero is a valid fetched bit pattern and decodes as an illegal
              * compressed instruction.  Only treat it as an ifetch failure
