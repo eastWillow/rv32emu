@@ -3736,7 +3736,7 @@ void rv_step(void *arg)
         /* lookup the next block in block map or translate a new block,
          * and move onto the next block.
          */
-#if RV32_HAS(JIT) || RV32_HAS(SYSTEM)
+#if RV32_HAS(SYSTEM)
         const uint32_t translate_pc = rv->PC;
 #endif
 #if RV32_HAS(JIT)
