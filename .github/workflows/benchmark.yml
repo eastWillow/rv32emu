@@ -212,7 +212,7 @@ jobs:
   publish:
     name: Publish to dashboard
     needs: [bench]
-    if: ${{ !cancelled() && needs.bench.result != 'skipped' && github.ref == 'refs/heads/master' }}
+    if: ${{ !cancelled() && github.repository == 'sysprog21/rv32emu' && needs.bench.result != 'skipped' && github.ref == 'refs/heads/master' }}
     runs-on: ubuntu-24.04
     # Serializes pushes to the dashboard repository across master commits.
     concurrency:

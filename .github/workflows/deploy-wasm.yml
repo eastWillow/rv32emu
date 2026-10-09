@@ -97,7 +97,7 @@ jobs:
     # skips every dependent job, which would silently cancel a deploy that was
     # asked for explicitly.
     if: >
-      !cancelled() && (
+      !cancelled() && github.repository == 'sysprog21/rv32emu' && (
         (github.event.pull_request.merged == true && needs.detect-file-changes.outputs.system == 'true') ||
         github.event_name == 'workflow_dispatch' ||
         (github.event_name == 'repository_dispatch' && github.event.action == 'deploy_system_wasm')
@@ -164,7 +164,7 @@ jobs:
     # "skipped" is not a failure here, a merge may touch only one of the two.
     needs: [detect-file-changes, wasm-system-deploy]
     if: >
-      !cancelled() && needs.wasm-system-deploy.result != 'failure' && (
+      !cancelled() && github.repository == 'sysprog21/rv32emu' && needs.wasm-system-deploy.result != 'failure' && (
         (github.event.pull_request.merged == true && needs.detect-file-changes.outputs.user == 'true') ||
         github.event_name == 'workflow_dispatch' ||
         (github.event_name == 'repository_dispatch' && github.event.action == 'deploy_user_wasm')
