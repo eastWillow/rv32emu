@@ -1037,13 +1037,13 @@ FORCE_INLINE bool insn_is_branch(uint16_t opcode)
 /* A learned edge must not keep the interpreter away from interrupt polling
  * forever. Check before changing last_pc: the target has not executed yet.
  */
-#define RVOP_CHECK_CHAIN_BUDGET(rv, cycle, pc_value)                  \
-    do {                                                             \
-        if (unlikely((cycle) >= (rv)->branch_chain_cycle_target)) {  \
-            (rv)->csr_cycle = (cycle);                               \
-            (rv)->PC = (pc_value);                                   \
-            return true;                                             \
-        }                                                            \
+#define RVOP_CHECK_CHAIN_BUDGET(rv, cycle, pc_value)                \
+    do {                                                            \
+        if (unlikely((cycle) >= (rv)->branch_chain_cycle_target)) { \
+            (rv)->csr_cycle = (cycle);                              \
+            (rv)->PC = (pc_value);                                  \
+            return true;                                            \
+        }                                                           \
     } while (0)
 #else
 #define RVOP_CHECK_CHAIN_BUDGET(rv, cycle, pc_value) ((void) 0)

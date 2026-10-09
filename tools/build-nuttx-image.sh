@@ -30,8 +30,8 @@ find_cross_prefix()
     local candidate
     for candidate in "${CROSS_COMPILE:-}" riscv-none-elf- riscv64-unknown-elf-; do
         [ -n "${candidate}" ] || continue
-        if command -v "${candidate}gcc" >/dev/null 2>&1 &&
-            command -v "${candidate}objcopy" >/dev/null 2>&1; then
+        if command -v "${candidate}gcc" > /dev/null 2>&1 \
+            && command -v "${candidate}objcopy" > /dev/null 2>&1; then
             printf '%s' "${candidate}"
             return
         fi
@@ -51,8 +51,8 @@ apps_relative=$(realpath --relative-to="${NUTTX_DIR}" "${NUTTX_APPS_DIR}")
 config_dir=$(mktemp -d)
 cleanup()
 {
-    if [ -L "${NUTTX_DIR}/Make.defs" ] &&
-        [ "$(readlink "${NUTTX_DIR}/Make.defs")" = "${config_dir}/Make.defs" ]; then
+    if [ -L "${NUTTX_DIR}/Make.defs" ] \
+        && [ "$(readlink "${NUTTX_DIR}/Make.defs")" = "${config_dir}/Make.defs" ]; then
         ln -sfn "${board_root}/scripts/Make.defs" "${NUTTX_DIR}/Make.defs"
     fi
     rm -rf -- "${config_dir}"

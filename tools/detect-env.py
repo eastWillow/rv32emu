@@ -17,7 +17,9 @@ Options:
     --have-emcc         Check if Emscripten (emcc) is available (exit 0/1)
     --have-sdl2         Check if SDL2 is available (exit 0/1)
     --have-sdl2-mixer   Check if SDL2_mixer is available (exit 0/1)
-    --have-llvm18       Check if LLVM 18 is available (exit 0/1)
+    --have-llvm         Check if supported LLVM libraries are available (exit 0/1)
+    --have-llvm18       Legacy alias for --have-llvm
+    --llvm-config       Print the supported llvm-config selected for T2C
     --have-riscv-toolchain  Check if RISC-V toolchain exists (exit 0/1)
     --have-zlib         Check if zlib exists (exit 0/1)
     --jit-capable-target  Check if the compiler targets a JIT host (exit 0/1)
@@ -115,28 +117,51 @@ def have_emcc():
     return False
 
 
-def have_llvm18():
-    """Check if LLVM 18 is available."""
-    # Check for llvm-config-18
-    if shutil.which("llvm-config-18"):
-        return True
+def find_llvm_config():
+    """Select usable LLVM 18-21 for both Kconfig and the T2C build.
 
-    # Check Homebrew path on macOS (dynamic detection)
+    Honor LLVM_CONFIG first; otherwise prefer the newest supported version,
+    then Homebrew installs, then the unversioned command on PATH. Check the
+    libraries too so a partial install does not hide a working older one.
+    """
+
+    def usable(command):
+        path = shutil.which(command)
+        if not path:
+            return None
+        ret, stdout, _ = run_cmd([path, "--version"])
+        if ret:
+            return None
+        try:
+            major = int(stdout.strip().split(".")[0])
+        except ValueError:
+            return None
+        if 18 <= major <= 21 and run_cmd([path, "--libs"])[0] == 0:
+            return path
+        return None
+
+    override = os.environ.get("LLVM_CONFIG")
+    if override:
+        return usable(override)
+
+    for major in range(21, 17, -1):
+        path = usable(f"llvm-config-{major}")
+        if path:
+            return path
+
     if shutil.which("brew"):
-        ret, stdout, _ = run_cmd(["brew", "--prefix", "llvm@18"])
-        if ret == 0:
-            homebrew_path = os.path.join(stdout.strip(), "bin", "llvm-config")
-            if os.access(homebrew_path, os.X_OK):
-                return True
+        for formula in [f"llvm@{major}" for major in range(21, 17, -1)] + [
+            "llvm"
+        ]:
+            ret, stdout, _ = run_cmd(["brew", "--prefix", formula])
+            if ret == 0 and stdout.strip():
+                path = usable(
+                    os.path.join(stdout.strip(), "bin", "llvm-config")
+                )
+                if path:
+                    return path
 
-    # Check standard llvm-config and verify version
-    llvm_config = shutil.which("llvm-config")
-    if llvm_config:
-        ret, stdout, _ = run_cmd([llvm_config, "--version"])
-        if ret == 0 and stdout.strip().startswith("18."):
-            return True
-
-    return False
+    return usable("llvm-config")
 
 
 def have_riscv_toolchain():
@@ -191,7 +216,7 @@ def print_summary():
     print(f"Emscripten: {'yes' if have_emcc() else 'no'}")
     print(f"SDL2: {'yes' if have_sdl2() else 'no'}")
     print(f"SDL2_mixer: {'yes' if have_sdl2_mixer() else 'no'}")
-    print(f"LLVM 18: {'yes' if have_llvm18() else 'no'}")
+    print(f"LLVM 18-21: {'yes' if find_llvm_config() else 'no'}")
     print(f"RISC-V Toolchain: {'yes' if have_riscv_toolchain() else 'no'}")
     print(f"ZLIB: {'yes' if have_zlib() else 'no'}")
 
@@ -253,8 +278,14 @@ def main():
         bool_exit(have_sdl2())
     elif arg == "--have-sdl2-mixer":
         bool_exit(have_sdl2_mixer())
-    elif arg == "--have-llvm18":
-        bool_exit(have_llvm18())
+    elif arg in ("--have-llvm", "--have-llvm18"):
+        bool_exit(find_llvm_config() is not None)
+    elif arg == "--llvm-config":
+        path = find_llvm_config()
+        if path:
+            print(path)
+        else:
+            sys.exit(1)
     elif arg == "--have-riscv-toolchain":
         bool_exit(have_riscv_toolchain())
     elif arg == "--have-zlib":

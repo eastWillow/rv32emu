@@ -1,6 +1,6 @@
 FROM alpine:3.21 AS base_gcc
 
-RUN apk add --update alpine-sdk git wget sdl2-dev sdl2_mixer-dev dtc
+RUN apk add --update alpine-sdk git wget python3 sdl2-dev sdl2_mixer-dev dtc
 
 # copy in the source code
 WORKDIR /home/root/rv32emu

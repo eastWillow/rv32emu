@@ -48,7 +48,11 @@ def run(image: Path) -> None:
                     output.extend(os.read(master, 4096))
                 except OSError:
                     break
-            if image.stem == "uart-iir" and b"UART-READY" in output and not input_sent:
+            if (
+                image.stem == "uart-iir"
+                and b"UART-READY" in output
+                and not input_sent
+            ):
                 os.write(master, b"U")
                 input_sent = True
             complete_lines = output.split(b"\n")[:-1]

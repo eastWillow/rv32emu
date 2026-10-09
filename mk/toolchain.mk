@@ -200,40 +200,11 @@ endif
 LLVM_MIN_VERSION := 18
 LLVM_MAX_VERSION := 21
 
-# Check if a versioned llvm-config exists in PATH
-# Usage: $(call llvm-config-path,VERSION)
-define llvm-config-path
-$(shell which llvm-config-$(1) 2>/dev/null)
-endef
-
-# Check if Homebrew LLVM version exists
-# Usage: $(call llvm-homebrew-config,VERSION)
-define llvm-homebrew-config
-$(shell brew --prefix llvm@$(1) 2>/dev/null | xargs -I{} sh -c 'test -x {}/bin/llvm-config && echo {}/bin/llvm-config' 2>/dev/null)
-endef
-
-# Check generic llvm-config with version validation
-# Usage: $(call llvm-config-generic,MIN,MAX)
-define llvm-config-generic
-$(shell which llvm-config 2>/dev/null | xargs -I{} sh -c 'ver=$$({} --version 2>/dev/null | cut -d. -f1); [ "$$ver" -ge $(1) ] && [ "$$ver" -le $(2) ] && echo {}' 2>/dev/null)
-endef
-
-# Auto-detect LLVM configuration
-# Priority: newest supported version first (LLVM 20 is the validated default;
-# 18 and 19 stay in the fallback list for hosts that haven't upgraded yet).
+# Use the same discovery as Kconfig so its T2C capability matches the build.
+# Prefer the newest supported version (LLVM 20 is the validated default).
 # Override with LLVM_CONFIG=/path/to/llvm-config to pin a specific install.
 define detect-llvm-config
-$(strip $(or \
-    $(call llvm-config-path,21),\
-    $(call llvm-config-path,20),\
-    $(call llvm-config-path,19),\
-    $(call llvm-config-path,18),\
-    $(call llvm-homebrew-config,21),\
-    $(call llvm-homebrew-config,20),\
-    $(call llvm-homebrew-config,19),\
-    $(call llvm-homebrew-config,18),\
-    $(shell brew --prefix llvm 2>/dev/null | xargs -I{} sh -c 'test -x {}/bin/llvm-config && echo {}/bin/llvm-config' 2>/dev/null),\
-    $(call llvm-config-generic,$(LLVM_MIN_VERSION),$(LLVM_MAX_VERSION))))
+$(shell python3 tools/detect-env.py --llvm-config)
 endef
 
 # Detect Homebrew LLVM prefix for library path (matches detect-llvm-config order)

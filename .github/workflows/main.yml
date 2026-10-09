@@ -17,6 +17,8 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v7
+      - name: Test environment detection
+        run: python3 tests/test-detect-env.py
       - name: Test changed files
         id: changed-files
         uses: tj-actions/changed-files@v47
@@ -645,22 +647,23 @@ jobs:
         uses: docker/setup-qemu-action@v4
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
+      # Forks and pull requests validate the image without publishing to the
+      # upstream project's registry or requiring its Docker Hub credentials.
       - name: Login to Docker Hub
         uses: docker/login-action@v4
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' && github.repository == 'sysprog21/rv32emu'
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
       - name: Get short commit SHA1
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' && github.repository == 'sysprog21/rv32emu'
         run: echo "short_hash=$(git rev-parse --short "$GITHUB_SHA")" >> "$GITHUB_ENV"
-      - name: Build and push
-        if: github.event_name == 'push'
+      - name: Build container image
         uses: docker/build-push-action@v7
         with:
-          push: true
+          push: ${{ github.event_name == 'push' && github.repository == 'sysprog21/rv32emu' }}
           context: .
           platforms: linux/amd64,linux/arm64/v8
-          tags: sysprog21/rv32emu:latest, sysprog21/rv32emu:${{ env.short_hash }}
+          tags: ${{ env.short_hash && format('sysprog21/rv32emu:latest,sysprog21/rv32emu:{0}', env.short_hash) || 'rv32emu:ci' }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
