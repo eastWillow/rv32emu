@@ -17,7 +17,7 @@ done < <(git ls-files -- '*.c' '*.cxx' '*.cpp' '*.h' '*.hpp')
 if [ ${#C_SOURCES[@]} -gt 0 ]; then
     if command -v "${CLANG_FORMAT}" > /dev/null 2>&1; then
         echo "Checking C/C++ files..."
-        "${CLANG_FORMAT}" -n --Werror "${C_SOURCES[@]}"
+        python3 tools/clang-format.py --formatter "${CLANG_FORMAT}" --check "${C_SOURCES[@]}"
         C_FORMAT_EXIT=$?
     else
         echo "Skipping C/C++ format check: ${CLANG_FORMAT} not found" >&2
@@ -83,7 +83,7 @@ done < <(git ls-files -- '*.html')
 
 if [ ${#HTML_SOURCES[@]} -gt 0 ]; then
     echo "Checking HTML files..."
-    npx --no-install prettier --check "${HTML_SOURCES[@]}"
+    prettier --check "${HTML_SOURCES[@]}"
     HTML_FORMAT_EXIT=$?
 else
     HTML_FORMAT_EXIT=0
@@ -96,7 +96,7 @@ done < <(git ls-files -- '*.js')
 
 if [ ${#JS_SOURCES[@]} -gt 0 ]; then
     echo "Checking JS files..."
-    npx --no-install prettier --check "${JS_SOURCES[@]}"
+    prettier --check "${JS_SOURCES[@]}"
     JS_FORMAT_EXIT=$?
 else
     JS_FORMAT_EXIT=0
