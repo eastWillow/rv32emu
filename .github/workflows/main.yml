@@ -538,6 +538,7 @@ jobs:
     - name: coding convention
       run: |
             .ci/check-newline.sh
+            python3 tests/test-clang-format.py
             .ci/check-format.sh
     # src/decode.c is generated from src/instructions.in but committed, so
     # the two can drift apart.  Regenerate and diff against the tree; this
