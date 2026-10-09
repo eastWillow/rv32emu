@@ -116,6 +116,7 @@ jobs:
 
     - name: check + tests
       run: |
+            python3 tests/test-detect-env.py
             make cleanconfig
             make interpreter_defconfig
             make check $PARALLEL
