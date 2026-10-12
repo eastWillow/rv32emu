@@ -1,0 +1,12 @@
+{
+  "verified_at_utc": "2026-10-12T17:36:31.743617+00:00",
+  "inventory_configurations": 5035,
+  "matching_main_passes_per_engine": 542,
+  "matching_supplement_passes_per_engine": 1,
+  "guest_records_and_hashes_verified": true,
+  "repeated_demo_runs_verified": 42,
+  "timing_excludes_compilation": true,
+  "unreported_cases_per_engine": 487,
+  "gcc_full_cpp_build_error_preserved": true,
+  "metadata_followup": "Philosopher static console replay passed and wrote complete metadata"
+}

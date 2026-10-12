@@ -1,0 +1,71 @@
+{
+  "scenario_counts": {
+    "tests": 3669,
+    "samples": 1366
+  },
+  "status_counts": {
+    "tests": {
+      "qemu": {
+        "filtered": 3186,
+        "passed": 464,
+        "built_not_run": 19
+      },
+      "rv32emu": {
+        "filtered": 3186,
+        "passed": 464,
+        "built_not_run": 19
+      }
+    },
+    "samples": {
+      "qemu": {
+        "filtered": 1263,
+        "passed": 78,
+        "built_not_run": 24,
+        "error": 1
+      },
+      "rv32emu": {
+        "filtered": 1263,
+        "passed": 78,
+        "built_not_run": 24,
+        "error": 1
+      }
+    }
+  },
+  "passing_suite_testcase_counts": {
+    "tests": {
+      "qemu": {
+        "passed": 5254,
+        "None": 487,
+        "skipped": 276
+      },
+      "rv32emu": {
+        "passed": 5254,
+        "None": 487,
+        "skipped": 276
+      }
+    },
+    "samples": {
+      "qemu": {
+        "passed": 78
+      },
+      "rv32emu": {
+        "passed": 78
+      }
+    }
+  },
+  "cpp_xpack_supplement": {
+    "qemu": "passed",
+    "rv32emu": "passed"
+  },
+  "timed_passing_pairs": 439,
+  "unreported_cases_in_passing_suites": {
+    "qemu": 487,
+    "rv32emu": 487
+  },
+  "campaign_runtime_phase_seconds": {
+    "qemu": 1133.906608692001,
+    "rv32emu": 1432.0160912129995
+  },
+  "campaign_rv32emu_over_qemu_time": 1.262904793248253,
+  "measurement_scope": "Serial main GCC test/sample phases, including Twister overhead; compilation, pilots, xPack supplement, repetitions and metadata followup excluded"
+}

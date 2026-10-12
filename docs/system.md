@@ -1,5 +1,11 @@
 # System emulation
 
+For Zephyr supervisor-mode guests, the [Boot Zephyr workflow](../.github/workflows/boot-zephyr.yml)
+checks hello_world and synchronization with GCC and xPack on the system
+interpreter. See [Zephyr validation and QEMU comparison](zephyr-compare.md)
+for the broader Twister sample/test campaign and repeated host completion-time
+demonstration.
+
 `rv32emu` provides experimental system emulation capable of booting an RV32
 Linux kernel and running user-space binaries. This document covers building
 and running system mode, choosing the rootfs, attaching virtio block devices,
