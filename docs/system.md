@@ -46,6 +46,20 @@ $ build/rv32emu -k build/nuttx-image/nuttx.bin \
       -x vblk:build/nuttx-image/dummy.img,rootfs
 ```
 
+Before building, the builder verifies that each input checkout is at the
+requested revision and has no tracked, staged, or unignored untracked changes.
+Dirty initialized submodules are included in this check. It then creates
+disposable checkouts from those exact commits and initializes submodules at
+their pinned gitlinks. The build uses only these checkouts, so ignored files in
+the input trees cannot affect the image and generated files such as `.config`
+do not block a rebuild. The original input trees remain unchanged. A failed
+clone or submodule update stops before the output directory is written.
+
+The metadata records the requested revisions after confirming that each input
+checkout's `HEAD` matches; it is a revision record, not a full content
+manifest. For a different revision, set `NUTTX_REVISION` or
+`NUTTX_APPS_REVISION` to that checkout's exact `HEAD`.
+
 An interactive boot ends at the `nsh>` prompt. A basic validation session is:
 
 ```text

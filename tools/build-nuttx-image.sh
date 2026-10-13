@@ -25,6 +25,41 @@ verify_revision()
     fi
 }
 
+verify_clean_source()
+{
+    local directory=$1
+    local changes
+    changes=$(git -C "${directory}" status --porcelain=v1 \
+        --untracked-files=all --ignore-submodules=none)
+    if [ -n "${changes}" ]; then
+        print_error "${directory} has local source changes; refusing to build"
+        printf '%s\n' "${changes}" >&2
+        exit 1
+    fi
+}
+
+checkout_revision()
+{
+    local source=$1
+    local revision=$2
+    local destination=$3
+
+    if ! git clone --shared --no-checkout -- "${source}" "${destination}"; then
+        print_error "Failed to clone source repository ${source}"
+        exit 1
+    fi
+    if ! git -C "${destination}" checkout --detach "${revision}"; then
+        print_error "Failed to check out requested revision ${revision}"
+        exit 1
+    fi
+    verify_revision "${destination}" "${revision}"
+    if ! git -C "${destination}" submodule update --init --recursive; then
+        print_error "Failed to initialize pinned submodules in ${destination}"
+        exit 1
+    fi
+    verify_clean_source "${destination}"
+}
+
 find_cross_prefix()
 {
     local candidate
@@ -40,31 +75,63 @@ find_cross_prefix()
     exit 1
 }
 
+path_is_within()
+{
+    local path=${1%/}
+    local root=${2%/}
+    [ -n "${root}" ] || root=/
+    if [ "${root}" = / ]; then
+        [[ "${path}/" == /* ]]
+    else
+        [[ "${path}" = "${root}" || "${path}" = "${root}/"* ]]
+    fi
+}
+
 verify_revision "${NUTTX_DIR}" "${NUTTX_REVISION}"
 verify_revision "${NUTTX_APPS_DIR}" "${NUTTX_APPS_REVISION}"
-NUTTX_DIR=$(cd -- "${NUTTX_DIR}" && pwd)
-NUTTX_APPS_DIR=$(cd -- "${NUTTX_APPS_DIR}" && pwd)
+# Git status still reports tracked changes but omits ignored untracked files.
+# Checkout from Git below so ignored files cannot enter the build inputs.
+verify_clean_source "${NUTTX_DIR}"
+verify_clean_source "${NUTTX_APPS_DIR}"
+NUTTX_DIR=$(cd -- "${NUTTX_DIR}" && pwd -P)
+NUTTX_APPS_DIR=$(cd -- "${NUTTX_APPS_DIR}" && pwd -P)
+NUTTX_SOURCE_DIR=${NUTTX_DIR}
+NUTTX_APPS_SOURCE_DIR=${NUTTX_APPS_DIR}
 
 cross_prefix=$(find_cross_prefix)
-board_root="${NUTTX_DIR}/boards/risc-v/qemu-rv/rv-virt"
-apps_relative=$(realpath --relative-to="${NUTTX_DIR}" "${NUTTX_APPS_DIR}")
-config_dir=$(mktemp -d)
+build_root=$(mktemp -d)
+build_root=$(cd -- "${build_root}" && pwd -P)
+config_dir="${build_root}/config"
+mkdir -p -- "${config_dir}"
+NUTTX_BUILD_DIR="${build_root}/nuttx"
+NUTTX_APPS_BUILD_DIR="${build_root}/nuttx-apps"
 cleanup()
 {
-    if [ -L "${NUTTX_DIR}/Make.defs" ] \
-        && [ "$(readlink "${NUTTX_DIR}/Make.defs")" = "${config_dir}/Make.defs" ]; then
-        ln -sfn "${board_root}/scripts/Make.defs" "${NUTTX_DIR}/Make.defs"
-    fi
-    rm -rf -- "${config_dir}"
+    rm -rf -- "${build_root}"
 }
 trap cleanup EXIT
 
-if [ -e "${NUTTX_DIR}/.config" ]; then
-    if [ ! -e "${NUTTX_DIR}/Make.defs" ]; then
-        ln -sfn "${board_root}/scripts/Make.defs" "${NUTTX_DIR}/Make.defs"
+output_dir=$(realpath -m -- "${OUTPUT_DIR}")
+for source_dir in "${NUTTX_SOURCE_DIR}" "${NUTTX_APPS_SOURCE_DIR}"; do
+    if path_is_within "${output_dir}" "${source_dir}" \
+        || path_is_within "${source_dir}" "${output_dir}"; then
+        print_error "OUTPUT_DIR must not overlap source checkout ${source_dir}"
+        exit 1
     fi
-    make -C "${NUTTX_DIR}" distclean
+done
+if path_is_within "${output_dir}" "${build_root}"; then
+    print_error "OUTPUT_DIR must be outside the temporary build tree"
+    exit 1
 fi
+
+checkout_revision "${NUTTX_SOURCE_DIR}" "${NUTTX_REVISION}" "${NUTTX_BUILD_DIR}"
+checkout_revision "${NUTTX_APPS_SOURCE_DIR}" "${NUTTX_APPS_REVISION}" \
+    "${NUTTX_APPS_BUILD_DIR}"
+NUTTX_DIR=${NUTTX_BUILD_DIR}
+NUTTX_APPS_DIR=${NUTTX_APPS_BUILD_DIR}
+board_root="${NUTTX_DIR}/boards/risc-v/qemu-rv/rv-virt"
+apps_relative=$(realpath --relative-to="${NUTTX_DIR}" "${NUTTX_APPS_DIR}")
+
 "${NUTTX_DIR}/tools/process_config.sh" -I "${board_root}/configs" \
     -o "${config_dir}/defconfig" \
     "${RV32EMU_ROOT}/assets/system/configs/nuttx.config"
@@ -72,15 +139,15 @@ ln -s "${board_root}/scripts/Make.defs" "${config_dir}/Make.defs"
 "${NUTTX_DIR}/tools/configure.sh" -l -a "${apps_relative}" "${config_dir}"
 make -C "${NUTTX_DIR}" "${PARALLEL}" CROSSDEV="${cross_prefix}"
 
-mkdir -p "${OUTPUT_DIR}"
-cp "${NUTTX_DIR}/nuttx" "${OUTPUT_DIR}/nuttx"
+mkdir -p "${output_dir}"
+cp "${NUTTX_DIR}/nuttx" "${output_dir}/nuttx"
 "${cross_prefix}objcopy" -O binary "${NUTTX_DIR}/nuttx" \
-    "${OUTPUT_DIR}/nuttx.bin"
-cp "${NUTTX_DIR}/.config" "${OUTPUT_DIR}/nuttx.config"
-cp "${config_dir}/defconfig" "${OUTPUT_DIR}/defconfig"
-truncate -s 1M "${OUTPUT_DIR}/dummy.img"
+    "${output_dir}/nuttx.bin"
+cp "${NUTTX_DIR}/.config" "${output_dir}/nuttx.config"
+cp "${config_dir}/defconfig" "${output_dir}/defconfig"
+truncate -s 1M "${output_dir}/dummy.img"
 printf '{\n  "nuttx": "%s",\n  "nuttx_apps": "%s"\n}\n' \
     "${NUTTX_REVISION}" "${NUTTX_APPS_REVISION}" \
-    > "${OUTPUT_DIR}/metadata.json"
+    > "${output_dir}/metadata.json"
 
-print_success "NuttX image written to ${OUTPUT_DIR}/nuttx.bin"
+print_success "NuttX image written to ${output_dir}/nuttx.bin"
