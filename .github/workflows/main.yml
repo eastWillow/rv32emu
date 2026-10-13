@@ -573,7 +573,10 @@ jobs:
   # https://docs.docker.com/build/ci/github-actions/multi-platform/
   docker-hub-build-and-publish:
     needs: [detect-code-related-file-changes]
-    if: needs.detect-code-related-file-changes.outputs.has_code_related_changes == 'true'
+    # The image and publishing credentials belong to the upstream repository.
+    if: >-
+      needs.detect-code-related-file-changes.outputs.has_code_related_changes == 'true' &&
+      github.repository == 'sysprog21/rv32emu'
     timeout-minutes: 60
     runs-on: ubuntu-24.04
     steps:
