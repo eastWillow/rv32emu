@@ -371,6 +371,7 @@ all: $(DTB_DEPS) $(BIN)
 include mk/tools.mk
 include mk/riscv-arch-test.mk
 include mk/tests.mk
+include mk/threadx.mk
 
 tool: $(TOOLS_BIN)
 

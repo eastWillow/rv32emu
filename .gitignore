@@ -58,3 +58,6 @@ build/machine-traps
 
 # Bare-metal board regressions
 build/baremetal/
+
+# External ThreadX example build
+build/threadx/
