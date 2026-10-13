@@ -76,6 +76,7 @@ jobs:
       - name: Create tarball
         run: tar -zcf /tmp/rv32emu-prebuilt.tar.gz -C /tmp rv32emu-prebuilt
       - name: Create GitHub Release
+        if: github.repository == 'sysprog21/rv32emu'
         env:
           GH_TOKEN: ${{ secrets.RV32EMU_PREBUILT_TOKEN }}
         working-directory: /tmp
