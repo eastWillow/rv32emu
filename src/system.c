@@ -5,11 +5,120 @@
 
 #include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "system.h"
 
 #if !RV32_HAS(ELF_LOADER)
+/* The single-hart machine timer uses CLINT register offsets, relocated to
+ * rv32emu's MMIO window. Time follows emulated cycles, as the SBI timer does.
+ */
+void emu_update_mtimer(riscv_t *rv)
+{
+    if (rv->csr_cycle + rv->timer_offset >= PRIV(rv)->mtimecmp)
+        rv->csr_mip |= RV_INT_MTI;
+    else
+        rv->csr_mip &= ~RV_INT_MTI;
+}
+
+static bool baremetal_device(riscv_t *rv, uint32_t addr)
+{
+    return PRIV(rv)->data.system.baremetal &&
+           ((addr >> 20) == (MTIMER_BASE >> 20) ||
+            (addr >> 20) == (FINISHER_BASE >> 20));
+}
+
+static void baremetal_bad_access(riscv_t *rv, uint32_t addr, unsigned size)
+{
+    rv_log_error("Unsupported bare-metal MMIO access at 0x%08x (%u bytes)",
+                 addr, size);
+    PRIV(rv)->exit_code = EXIT_FAILURE;
+    rv_halt(rv);
+}
+
+bool baremetal_mmio_read(riscv_t *rv,
+                         uint32_t addr,
+                         unsigned size,
+                         uint32_t *value)
+{
+    if (!baremetal_device(rv, addr))
+        return false;
+    *value = 0;
+    if (size == 4) {
+        uint64_t now = rv->csr_cycle + rv->timer_offset;
+        switch (addr) {
+        case MTIMER_BASE + 0x4000:
+            *value = PRIV(rv)->mtimecmp;
+            return true;
+        case MTIMER_BASE + 0x4004:
+            *value = PRIV(rv)->mtimecmp >> 32;
+            return true;
+        case MTIMER_BASE + 0xBFF8:
+            *value = now;
+            return true;
+        case MTIMER_BASE + 0xBFFC:
+            *value = now >> 32;
+            return true;
+        case FINISHER_BASE:
+            return true;
+        }
+    }
+    baremetal_bad_access(rv, addr, size);
+    return true;
+}
+
+bool baremetal_mmio_write(riscv_t *rv,
+                          uint32_t addr,
+                          unsigned size,
+                          uint32_t value)
+{
+    if (!baremetal_device(rv, addr))
+        return false;
+    if (size == 4) {
+        uint64_t now = rv->csr_cycle + rv->timer_offset;
+        switch (addr) {
+        case MTIMER_BASE + 0x4000:
+            PRIV(rv)->mtimecmp =
+                (PRIV(rv)->mtimecmp & UINT64_C(0xFFFFFFFF00000000)) | value;
+            break;
+        case MTIMER_BASE + 0x4004:
+            PRIV(rv)->mtimecmp =
+                (PRIV(rv)->mtimecmp & UINT32_MAX) | ((uint64_t) value << 32);
+            break;
+        case MTIMER_BASE + 0xBFF8:
+            now = (now & UINT64_C(0xFFFFFFFF00000000)) | value;
+            rv->timer_offset = now - rv->csr_cycle;
+            break;
+        case MTIMER_BASE + 0xBFFC:
+            now = (now & UINT32_MAX) | ((uint64_t) value << 32);
+            rv->timer_offset = now - rv->csr_cycle;
+            break;
+        case FINISHER_BASE:
+            if (value == 0x5555) {
+                PRIV(rv)->exit_code = EXIT_SUCCESS;
+                rv_halt(rv);
+                return true;
+            }
+            if ((value & 0xFFFF) == 0x3333) {
+                unsigned code = value >> 16;
+                /* Keep a failure nonzero after the shell truncates status. */
+                PRIV(rv)->exit_code = code && code < 256 ? code : EXIT_FAILURE;
+                rv_halt(rv);
+                return true;
+            }
+            /* fall through */
+        default:
+            baremetal_bad_access(rv, addr, size);
+            return true;
+        }
+        emu_update_mtimer(rv);
+        return true;
+    }
+    baremetal_bad_access(rv, addr, size);
+    return true;
+}
+
 void emu_update_uart_interrupts(riscv_t *rv)
 {
     vm_attr_t *attr = PRIV(rv);
@@ -431,6 +540,9 @@ uint32_t mmu_read_w(riscv_t *rv, const uint32_t vaddr)
         return memory_read_w(addr);
 
 #if RV32_HAS(SYSTEM_MMIO)
+    uint32_t value;
+    if (baremetal_mmio_read(rv, addr, 4, &value))
+        return value;
     MMIO_READ();
 #endif
 
@@ -448,6 +560,9 @@ uint16_t mmu_read_s(riscv_t *rv, const uint32_t vaddr)
         return memory_read_s(addr);
 
 #if RV32_HAS(SYSTEM_MMIO)
+    uint32_t value;
+    if (baremetal_mmio_read(rv, addr, 2, &value))
+        return value;
     MMIO_READ();
 #endif
 
@@ -465,6 +580,9 @@ uint8_t mmu_read_b(riscv_t *rv, const uint32_t vaddr)
         return memory_read_b(addr);
 
 #if RV32_HAS(SYSTEM_MMIO)
+    uint32_t value;
+    if (baremetal_mmio_read(rv, addr, 1, &value))
+        return value;
     MMIO_READ();
 #endif
 
@@ -484,6 +602,8 @@ void mmu_write_w(riscv_t *rv, const uint32_t vaddr, const uint32_t val)
     }
 
 #if RV32_HAS(SYSTEM_MMIO)
+    if (baremetal_mmio_write(rv, addr, 4, val))
+        return;
     MMIO_WRITE();
 #endif
 
@@ -503,6 +623,8 @@ void mmu_write_s(riscv_t *rv, const uint32_t vaddr, const uint16_t val)
     }
 
 #if RV32_HAS(SYSTEM_MMIO)
+    if (baremetal_mmio_write(rv, addr, 2, val))
+        return;
     MMIO_WRITE();
 #endif
 
@@ -522,6 +644,8 @@ void mmu_write_b(riscv_t *rv, const uint32_t vaddr, const uint8_t val)
     }
 
 #if RV32_HAS(SYSTEM_MMIO)
+    if (baremetal_mmio_write(rv, addr, 1, val))
+        return;
     MMIO_WRITE();
 #endif
 

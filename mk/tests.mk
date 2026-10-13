@@ -32,6 +32,13 @@ $(eval $(call test-framework,decode,test-decode.o,$(OUT)/decode.o,))
 # ELF test: rejects malformed ELF input without reading outside the file
 $(eval $(call test-framework,elf,test-elf.o,$(OUT)/elf.o $(OUT)/io.o $(OUT)/map.o $(OUT)/utils.o $(OUT)/log.o,))
 
+# Device behavior is tested through the real system handlers and core.
+ifeq ($(call has,SYSTEM)$(call has,ELF_LOADER),10)
+$(eval $(call test-framework,baremetal,test-baremetal.o,$(filter-out $(OUT)/main.o,$(OBJS)) $(DEV_OBJS),))
+$(eval $(call run-test-simple,baremetal))
+tests: run-test-baremetal
+endif
+
 # Test Runners
 
 # Cache test uses file comparison (input -> output -> compare with expected)
@@ -350,5 +357,24 @@ mmu-test: $(BIN)
 .PHONY: tests run-test-cache run-test-block-edge run-test-map run-test-path \
 	run-test-elf run-test-io run-test-decode run-test-set
 .PHONY: check $(CHECK_TARGETS) misalign misalign-in-blk-emu mmu-test
+
+# These guests use the bare-metal loader, independent of external ThreadX.
+.PHONY: check-baremetal
+ifeq ($(call has,SYSTEM)$(call has,JIT)$(call has,ELF_LOADER),100)
+BAREMETAL_CROSS_COMPILE ?= riscv64-unknown-elf-
+BAREMETAL_GUESTS := traps trap-switch
+BAREMETAL_IMAGES := $(addprefix $(OUT)/baremetal/,$(addsuffix .bin,$(BAREMETAL_GUESTS)))
+$(OUT)/baremetal/%.elf: tests/baremetal/%.S | $(OUT)/baremetal
+	$(Q)$(BAREMETAL_CROSS_COMPILE)gcc -march=rv32ima_zicsr -mabi=ilp32 \
+	    -nostdlib -Wl,-Ttext=0 -Wl,--build-id=none $< -o $@
+$(OUT)/baremetal/%.bin: $(OUT)/baremetal/%.elf
+	$(Q)$(BAREMETAL_CROSS_COMPILE)objcopy -O binary $< $@
+check-baremetal: $(BIN) run-test-baremetal $(BAREMETAL_IMAGES)
+	$(Q)python3 tests/baremetal/check.py "$(BIN)" $(BAREMETAL_IMAGES)
+else
+check-baremetal:
+	$(Q)echo "check-baremetal requires make baremetal_defconfig first" >&2
+	$(Q)exit 1
+endif
 
 endif # _MK_TESTS_INCLUDED

@@ -33,6 +33,9 @@ extern struct target_ops gdbstub_ops;
 #include "syscall_sdl.h"
 #include "trace_match.h"
 #include "utils.h"
+#if RV32_HAS(SYSTEM)
+#include "system.h"
+#endif
 
 #if RV32_HAS(JIT)
 #include "cache.h"
@@ -927,8 +930,6 @@ void reset_rv_run_state(void)
 #endif /* __EMSCRIPTEN__ */
 
 #if RV32_HAS(SYSTEM_MMIO)
-extern void emu_update_uart_interrupts(riscv_t *rv);
-extern void emu_update_rtc_interrupts(riscv_t *rv);
 static uint32_t peripheral_update_ctr = 64;
 #endif
 
@@ -3532,6 +3533,13 @@ static bool rv_has_plic_trap(riscv_t *rv)
 static void rv_check_interrupt(riscv_t *rv)
 {
     vm_attr_t *attr = PRIV(rv);
+    if (attr->data.system.baremetal) {
+        emu_update_mtimer(rv);
+        if ((rv->csr_mip & rv->csr_mie & RV_INT_MTI) &&
+            (rv->csr_mstatus & MSTATUS_MIE))
+            SET_CAUSE_AND_TVAL_THEN_TRAP(rv, MACHINE_TIMER_INTR, 0);
+        return;
+    }
     if (peripheral_update_ctr-- == 0) {
         peripheral_update_ctr = 64;
 #if defined(__EMSCRIPTEN__)
@@ -3729,6 +3737,10 @@ void rv_step(void *arg)
          */
 #if RV32_HAS(BLOCK_CHAINING)
         if (prev
+#if RV32_HAS(SYSTEM_MMIO)
+            /* Poll the machine timer at every block boundary. */
+            && !attr->data.system.baremetal
+#endif
 #if RV32_HAS(JIT) && RV32_HAS(SYSTEM)
             && prev->satp == rv->csr_satp && !prev->invalidated
 #endif
@@ -4138,6 +4150,14 @@ static void _trap_handler(riscv_t *rv)
              * and clear trap_cnt to continue execution. This handles
              * spurious interrupts during early boot before handlers are set.
              */
+#if RV32_HAS(SYSTEM_MMIO)
+            if (PRIV(rv)->data.system.baremetal) {
+                rv_log_error("Unhandled machine trap %u at PC=0x%08x", cause,
+                             rv->csr_mepc);
+                PRIV(rv)->exit_code = EXIT_FAILURE;
+                rv_halt(rv);
+            }
+#endif
             rv->PC = rv->csr_mepc;
             if (rv->trap_cnt)
                 rv->trap_cnt--;
@@ -4159,6 +4179,18 @@ static void _trap_handler(riscv_t *rv)
         rv->PC = base + ((cause & (1U << 31)) ? 4 * (cause & MASK(31)) : 0);
         break;
     }
+#if RV32_HAS(SYSTEM_MMIO)
+    if (PRIV(rv)->data.system.baremetal) {
+        /* An RTOS can switch to a solicited context and ret from its timer
+         * handler without mret. Resume through the dispatcher so subsequent
+         * timer checks do not depend on a particular trap return instruction.
+         * In this mode trap_cnt represents pending dispatch, not nesting.
+         */
+        rv->trap_cnt = 0;
+        prev = NULL;
+        return;
+    }
+#endif
     IIF(RV32_HAS(SYSTEM))(if (rv->trap_cnt) __trap_handler(rv);, )
 }
 

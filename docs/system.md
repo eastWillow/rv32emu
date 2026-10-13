@@ -5,6 +5,8 @@ Linux kernel and running user-space binaries. This document covers building
 and running system mode, choosing the rootfs, attaching virtio block devices,
 customizing bootargs, and building a Linux image from source.
 
+For machine-mode RTOS guests, see [bare-metal boot](baremetal.md).
+
 Device Tree compiler (dtc) is required:
 * Debian/Ubuntu Linux: `sudo apt install device-tree-compiler`
 * macOS: `brew install dtc`

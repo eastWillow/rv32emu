@@ -53,6 +53,7 @@ $ make mini_defconfig       # Minimal: no SDL, basic extensions only
 $ make jit_defconfig        # JIT: enables tiered JIT compilation (T1C + T2C)
 $ make system_defconfig     # System: Linux system emulation, tier-1 JIT
 $ make system_interpreter_defconfig # System emulation without the JIT
+$ make baremetal_defconfig  # Machine-mode guests without resident firmware
 $ make system_jit_defconfig # System emulation with tiered JIT (T1C + T2C)
 $ make wasm_defconfig       # WebAssembly: build for browser deployment
 ```

@@ -75,6 +75,7 @@ button that switches directly to the other.
 | ----- | -------- |
 | Build options, Kconfig, and tiered JIT setup | [docs/build.md](docs/build.md) |
 | System emulation: boot Linux, virtio block devices, bootargs | [docs/system.md](docs/system.md) |
+| Bare-metal machine-mode boot and timer | [docs/baremetal.md](docs/baremetal.md) |
 | WebAssembly build for the browser | [docs/wasm.md](docs/wasm.md) |
 | GDB remote debugging and register JSON dump | [docs/gdbstub.md](docs/gdbstub.md) |
 | RISCOF / RISC-V architecture tests | [docs/riscof.md](docs/riscof.md) |

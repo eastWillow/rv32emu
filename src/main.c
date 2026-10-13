@@ -52,7 +52,7 @@ static char *opt_prog_name;
 /* target argc and argv */
 static int prog_argc;
 static char **prog_args;
-static const char *optstr = "tgqmhpd:a:k:i:b:x:";
+static const char *optstr = "tgqmhpd:a:k:i:b:x:M:";
 
 /* enable misaligned memory access */
 static bool opt_misaligned = false;
@@ -64,6 +64,7 @@ static char *prof_out_file;
 #if RV32_HAS(SYSTEM_MMIO)
 /* Linux kernel data */
 static char *opt_kernel_img;
+static char *opt_baremetal_img;
 static char *opt_rootfs_img;
 static char *opt_bootargs;
 /* FIXME: handle overflow */
@@ -113,6 +114,7 @@ static void reset_runtime_options(void)
     prof_out_file = NULL;
 #if RV32_HAS(SYSTEM_MMIO)
     opt_kernel_img = NULL;
+    opt_baremetal_img = NULL;
     opt_rootfs_img = NULL;
     opt_bootargs = NULL;
     memset(opt_virtio_blk_img, 0, sizeof(opt_virtio_blk_img));
@@ -141,6 +143,7 @@ static void print_usage(const char *filename)
 #endif
 #if RV32_HAS(SYSTEM_MMIO)
         "  -k <image> : use <image> as kernel image\n"
+        "  -M <image> : boot a raw machine-mode image (interpreter only)\n"
 #if RV32_HAS(ROOTFS_EXT4)
         "  -x vblk:<image>[,readonly][,rootfs]: use "
         "<image> as virtio-blk disk image (default to read-write).\n"
@@ -223,6 +226,10 @@ static bool parse_args(int argc, char **args)
             break;
 #endif
 #if RV32_HAS(SYSTEM_MMIO)
+        case 'M':
+            opt_baremetal_img = optarg;
+            emu_argc++;
+            break;
         case 'k':
             opt_kernel_img = optarg;
             emu_argc++;
@@ -298,6 +305,26 @@ static bool parse_args(int argc, char **args)
         }
     }
 
+#if RV32_HAS(SYSTEM_MMIO)
+    if (opt_baremetal_img) {
+#if RV32_HAS(JIT)
+        rv_log_error("-M requires an interpreter build (ENABLE_JIT=0)");
+        return false;
+#endif
+        if (opt_kernel_img || opt_rootfs_img || opt_bootargs ||
+            opt_virtio_blk_idx || opt_virtio_rng
+#if RV32_HAS(VIRTIO_NET)
+            || opt_virtio_net_backend
+#endif
+        ) {
+            rv_log_error("-M cannot be combined with Linux boot options");
+            return false;
+        }
+    } else if (!opt_kernel_img) {
+        rv_log_error("Specify a kernel with -k or a bare-metal image with -M");
+        return false;
+    }
+#endif
     prog_argc = argc - emu_argc - 1;
     /* optind points to the first non-option string, so it should indicate the
      * target program.
@@ -476,7 +503,9 @@ int main(int argc, char **args)
         .fd_stderr = STDERR_FILENO,
     };
 #if RV32_HAS(SYSTEM_MMIO)
-    attr.data.system.kernel = opt_kernel_img;
+    attr.data.system.baremetal = opt_baremetal_img != NULL;
+    attr.data.system.kernel =
+        opt_baremetal_img ? opt_baremetal_img : opt_kernel_img;
     attr.data.system.initrd = opt_rootfs_img;
     attr.data.system.bootargs = opt_bootargs;
     attr.data.system.vrng_enabled = opt_virtio_rng;

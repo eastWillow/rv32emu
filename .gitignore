@@ -55,3 +55,6 @@ src/rv32emu_config.h
 
 # Machine trap regression
 build/machine-traps
+
+# Bare-metal board regressions
+build/baremetal/

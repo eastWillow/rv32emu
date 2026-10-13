@@ -16,7 +16,7 @@
 #define R 1
 #define W 0
 
-/* MMIO definitions for Linux kernel emulation.
+/* MMIO definitions for system emulation.
  * Only defined when ELF_LOADER is disabled, as kernel mode needs MMIO but ELF
  * test mode does not.
  */
@@ -198,6 +198,18 @@ enum SUPPORTED_MMIO {
     } while (0)
 /* clang-format on */
 
+/* Bare-metal devices occupy otherwise unused MMIO regions. */
+#define MTIMER_BASE 0xF4200000U
+#define FINISHER_BASE 0xF4300000U
+void emu_update_mtimer(riscv_t *rv);
+bool baremetal_mmio_read(riscv_t *rv,
+                         uint32_t addr,
+                         unsigned size,
+                         uint32_t *value);
+bool baremetal_mmio_write(riscv_t *rv,
+                          uint32_t addr,
+                          unsigned size,
+                          uint32_t value);
 void emu_update_uart_interrupts(riscv_t *rv);
 void emu_update_vblk_interrupts(riscv_t *rv);
 void emu_update_vrng_interrupts(riscv_t *rv);

@@ -1019,6 +1019,12 @@ static void rv_fsync_device(void)
 riscv_t *rv_create(riscv_user_t rv_attr)
 {
     assert(rv_attr);
+#if RV32_HAS(SYSTEM_MMIO) && RV32_HAS(JIT)
+    if (((vm_attr_t *) rv_attr)->data.system.baremetal) {
+        rv_log_error("Bare-metal execution requires an interpreter build");
+        return NULL;
+    }
+#endif
 
     riscv_t *rv = calloc(1, sizeof(riscv_t));
     if (!rv)
@@ -1231,7 +1237,12 @@ static void rv_reset_hart(riscv_t *rv, riscv_word_t pc)
      * System simulation defaults to S-mode as
      * it does not rely on M-mode software like OpenSBI.
      */
+#if RV32_HAS(SYSTEM_MMIO)
+    rv->priv_mode =
+        PRIV(rv)->data.system.baremetal ? RV_PRIV_M_MODE : RV_PRIV_S_MODE;
+#else
     rv->priv_mode = RV_PRIV_S_MODE;
+#endif
 #else
     /* ISA simulation defaults to M-mode */
     rv->priv_mode = RV_PRIV_M_MODE;
@@ -1553,6 +1564,16 @@ void rv_delete(riscv_t *rv)
  */
 static void load_boot_images(vm_attr_t *attr)
 {
+    if (attr->data.system.baremetal) {
+        char *ram = (char *) attr->mem->mem_base;
+        if (map_file(&ram, attr->data.system.kernel, attr->mem->mem_size) <=
+            0) {
+            rv_log_fatal("Bare-metal image is empty or exceeds guest RAM");
+            exit(EXIT_FAILURE);
+        }
+        attr->dtb_addr = 0;
+        return;
+    }
 #if RV32_HAS(ROOTFS_EXT4)
     assert(attr->mem->mem_size >= DTB_SIZE);
 #else
@@ -1866,8 +1887,9 @@ bool rv_cold_reboot(riscv_t *rv, riscv_word_t pc)
     rv_set_reg(rv, rv_reg_a0, 0);
     rv_set_reg(rv, rv_reg_a1, attr->dtb_addr);
 
-    /* setup timer */
-    attr->timer = 0xFFFFFFFFFFFFFFF;
+    /* setup timers */
+    attr->timer = UINT64_MAX;
+    attr->mtimecmp = UINT64_MAX;
 
     /* setup PLIC */
     if (attr->plic)             /* check for reboot */

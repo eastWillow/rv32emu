@@ -1,0 +1,11 @@
+# Single-hart machine-mode guests (-M), without resident firmware.
+CONFIG_SYSTEM=y
+CONFIG_INTERPRETER_ONLY=y
+# CONFIG_JIT is not set
+# CONFIG_ELF_LOADER is not set
+# CONFIG_EXT_F is not set
+# CONFIG_SDL is not set
+# CONFIG_SDL_MIXER is not set
+# CONFIG_GOLDFISH_RTC is not set
+# CONFIG_VIRTIO_NET is not set
+# CONFIG_GDBSTUB is not set

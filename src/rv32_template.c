@@ -213,6 +213,11 @@ RVOP(jalr, {
 #if !RV32_HAS(EXT_C)
     RV_EXC_MISALIGN_HANDLER(pc, INSN, false, 0);
 #endif
+#if RV32_HAS(SYSTEM_MMIO)
+    /* Return through the dispatcher to poll the machine timer. */
+    if (PRIV(rv)->data.system.baremetal)
+        goto end_op;
+#endif
     LOOKUP_OR_UPDATE_BRANCH_HISTORY_TABLE();
 
 #if RV32_HAS(SYSTEM)
@@ -1580,6 +1585,11 @@ RVOP(clwsp, {
 /* C.JR */
 RVOP(cjr, {
     PC = rv->X[ir->rs1];
+#if RV32_HAS(SYSTEM_MMIO)
+    /* Return through the dispatcher to poll the machine timer. */
+    if (PRIV(rv)->data.system.baremetal)
+        goto end_op;
+#endif
     LOOKUP_OR_UPDATE_BRANCH_HISTORY_TABLE();
     goto end_op;
 })
@@ -1602,6 +1612,11 @@ RVOP(cjalr, {
     const int32_t jump_to = rv->X[ir->rs1];
     rv->X[rv_reg_ra] = PC + 2;
     PC = jump_to;
+#if RV32_HAS(SYSTEM_MMIO)
+    /* Return through the dispatcher to poll the machine timer. */
+    if (PRIV(rv)->data.system.baremetal)
+        goto end_op;
+#endif
     LOOKUP_OR_UPDATE_BRANCH_HISTORY_TABLE();
     goto end_op;
 })

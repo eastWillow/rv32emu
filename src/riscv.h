@@ -214,6 +214,7 @@ enum {
 #define RV_MARCHID ((1ULL << 31) | 1)
 #define RV_MIMPID 1
 
+#define RV_INT_MTI (1U << 7)
 #define RV_INT_STI_SHIFT 5
 #define RV_INT_STI (1 << RV_INT_STI_SHIFT)
 
@@ -230,6 +231,7 @@ enum TRAP_CODE {
     PAGEFAULT_INSN = 12,                       /* Instruction page fault */
     PAGEFAULT_LOAD = 13,                       /* Load page fault */
     PAGEFAULT_STORE = 15,                      /* Store page fault */
+    MACHINE_TIMER_INTR = (1U << 31) | 7,
     SUPERVISOR_SW_INTR = (1U << 31) | 1,       /* Supervisor software interrupt */
     SUPERVISOR_TIMER_INTR = (1U << 31) | 5,    /* Supervisor timer interrupt */
     SUPERVISOR_EXTERNAL_INTR = (1U << 31) | 9, /* Supervisor external interrupt */
@@ -578,6 +580,7 @@ typedef struct {
 #if RV32_HAS(SYSTEM)
 typedef struct {
     char *kernel;
+    bool baremetal; /* Raw machine-mode image, without Linux boot data */
     char *initrd;
     char *bootargs;
     char **vblk_device;
@@ -709,6 +712,9 @@ typedef struct {
 
     /* SBI timer */
     uint64_t timer;
+#if RV32_HAS(SYSTEM_MMIO)
+    uint64_t mtimecmp; /* Machine timer compare, reset to UINT64_MAX */
+#endif
 
 #if RV32_HAS(SYSTEM) && !RV32_HAS(ELF_LOADER)
     /* DTB address in memory */
