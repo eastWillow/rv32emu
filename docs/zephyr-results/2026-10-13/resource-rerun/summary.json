@@ -1,0 +1,647 @@
+{
+  "collected_at_utc": "2026-10-13T05:13:19.489028+00:00",
+  "status": "audited_complete",
+  "units": {
+    "zephyr-resource-campaign": {
+      "SubState": "exited",
+      "MainPID": "0",
+      "Result": "success",
+      "ExecMainStatus": "0"
+    },
+    "zephyr-resource-observer-live": {
+      "SubState": "exited",
+      "MainPID": "0",
+      "Result": "success",
+      "ExecMainStatus": "0"
+    }
+  },
+  "phase": null,
+  "events": [
+    {
+      "name": "emulator-build",
+      "engine": null,
+      "phase": "build",
+      "command": [
+        "make",
+        "OUT=/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/build/zephyr-resource-rerun/emulator",
+        "CC=gcc",
+        "CONFIG_VIRTIO_NET=n",
+        "-j2"
+      ],
+      "returncode": 0,
+      "wall_seconds": 8.07817666000119
+    },
+    {
+      "name": "main-rv32emu-build",
+      "engine": "rv32emu",
+      "phase": "build",
+      "command": [
+        "/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/.ci/compare-zephyr.sh",
+        "rv32emu",
+        "/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/build/zephyr-resource-rerun/main-rv32emu",
+        "-x",
+        "USER_CACHE_DIR=/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/build/zephyr-resource-rerun/cache",
+        "-x",
+        "USE_CCACHE=1",
+        "--build-only",
+        "-j1"
+      ],
+      "returncode": 1,
+      "wall_seconds": 17344.334015455
+    },
+    {
+      "name": "main-qemu-build",
+      "engine": "qemu",
+      "phase": "build",
+      "command": [
+        "/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/.ci/compare-zephyr.sh",
+        "qemu",
+        "/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/build/zephyr-resource-rerun/main-qemu",
+        "-x",
+        "USER_CACHE_DIR=/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/build/zephyr-resource-rerun/cache",
+        "-x",
+        "USE_CCACHE=1",
+        "--build-only",
+        "-j1"
+      ],
+      "returncode": 1,
+      "wall_seconds": 16929.167712178
+    },
+    {
+      "name": "cpp-rv32emu-build",
+      "engine": "rv32emu",
+      "phase": "build",
+      "command": [
+        "/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/.ci/compare-zephyr.sh",
+        "rv32emu",
+        "/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/build/zephyr-resource-rerun/cpp-rv32emu",
+        "-x",
+        "USER_CACHE_DIR=/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/build/zephyr-resource-rerun/cache",
+        "-x",
+        "USE_CCACHE=1",
+        "-s",
+        "sample.cpp.helloworld",
+        "--build-only",
+        "-j1",
+        "-x",
+        "SYSROOT_DIR=/home/eastwillow/.local/xPacks/@xpack-dev-tools/riscv-none-elf-gcc/15.2.0-1.1/.content/riscv-none-elf",
+        "-x",
+        "TOOLCHAIN_HAS_NEWLIB=ON",
+        "-x",
+        "EXTRA_CONF_FILE=/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/.ci/zephyr/no-tls.conf"
+      ],
+      "returncode": 0,
+      "wall_seconds": 20.30464665600448
+    },
+    {
+      "name": "cpp-qemu-build",
+      "engine": "qemu",
+      "phase": "build",
+      "command": [
+        "/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/.ci/compare-zephyr.sh",
+        "qemu",
+        "/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/build/zephyr-resource-rerun/cpp-qemu",
+        "-x",
+        "USER_CACHE_DIR=/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/build/zephyr-resource-rerun/cache",
+        "-x",
+        "USE_CCACHE=1",
+        "-s",
+        "sample.cpp.helloworld",
+        "--build-only",
+        "-j1",
+        "-x",
+        "SYSROOT_DIR=/home/eastwillow/.local/xPacks/@xpack-dev-tools/riscv-none-elf-gcc/15.2.0-1.1/.content/riscv-none-elf",
+        "-x",
+        "TOOLCHAIN_HAS_NEWLIB=ON",
+        "-x",
+        "EXTRA_CONF_FILE=/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/.ci/zephyr/no-tls.conf"
+      ],
+      "returncode": 0,
+      "wall_seconds": 15.766632475999359
+    },
+    {
+      "name": "main-rv32emu-run",
+      "engine": "rv32emu",
+      "phase": "run",
+      "command": [
+        "/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/.ci/compare-zephyr.sh",
+        "rv32emu",
+        "/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/build/zephyr-resource-rerun/main-rv32emu",
+        "-x",
+        "USER_CACHE_DIR=/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/build/zephyr-resource-rerun/cache",
+        "-x",
+        "USE_CCACHE=1",
+        "--test-only",
+        "--load-tests",
+        "/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/build/zephyr-resource-rerun/execution-rv32emu.json",
+        "-j1"
+      ],
+      "returncode": 0,
+      "wall_seconds": 3485.280714282999
+    },
+    {
+      "name": "cpp-rv32emu-run",
+      "engine": "rv32emu",
+      "phase": "run",
+      "command": [
+        "/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/.ci/compare-zephyr.sh",
+        "rv32emu",
+        "/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/build/zephyr-resource-rerun/cpp-rv32emu",
+        "-x",
+        "USER_CACHE_DIR=/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/build/zephyr-resource-rerun/cache",
+        "-x",
+        "USE_CCACHE=1",
+        "--test-only",
+        "-j1"
+      ],
+      "returncode": 0,
+      "wall_seconds": 7.047403835000296
+    },
+    {
+      "name": "main-qemu-run",
+      "engine": "qemu",
+      "phase": "run",
+      "command": [
+        "/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/.ci/compare-zephyr.sh",
+        "qemu",
+        "/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/build/zephyr-resource-rerun/main-qemu",
+        "-x",
+        "USER_CACHE_DIR=/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/build/zephyr-resource-rerun/cache",
+        "-x",
+        "USE_CCACHE=1",
+        "--test-only",
+        "--load-tests",
+        "/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/build/zephyr-resource-rerun/execution-qemu.json",
+        "-j1"
+      ],
+      "returncode": 0,
+      "wall_seconds": 3128.896252339
+    },
+    {
+      "name": "cpp-qemu-run",
+      "engine": "qemu",
+      "phase": "run",
+      "command": [
+        "/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/.ci/compare-zephyr.sh",
+        "qemu",
+        "/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/build/zephyr-resource-rerun/cpp-qemu",
+        "-x",
+        "USER_CACHE_DIR=/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/build/zephyr-resource-rerun/cache",
+        "-x",
+        "USE_CCACHE=1",
+        "--test-only",
+        "-j1"
+      ],
+      "returncode": 0,
+      "wall_seconds": 9.072662183003558
+    },
+    {
+      "name": "demo-libraries.nanopb",
+      "engine": null,
+      "phase": "demo",
+      "command": [
+        "/home/eastwillow/Documents/boot_Zephyr_in_rv32emu/zvenv/bin/python",
+        "/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/.ci/zephyr/compare-demo.py",
+        "--out",
+        "/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/build/zephyr-resource-rerun/demos/libraries.nanopb",
+        "--repeat",
+        "7",
+        "--qemu-elf",
+        "/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/build/zephyr-resource-rerun/main-qemu/rv32_compare_qemu_virt_riscv32/cross-compile/tests/modules/nanopb/libraries.nanopb/zephyr/zephyr.elf",
+        "--qemu-bin",
+        "/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/build/zephyr-resource-rerun/main-qemu/rv32_compare_qemu_virt_riscv32/cross-compile/tests/modules/nanopb/libraries.nanopb/zephyr/zephyr.bin",
+        "--rv32emu-elf",
+        "/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/build/zephyr-resource-rerun/main-rv32emu/rv32_compare_qemu_virt_riscv32/cross-compile/tests/modules/nanopb/libraries.nanopb/zephyr/zephyr.elf",
+        "--rv32emu-bin",
+        "/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/build/zephyr-resource-rerun/main-rv32emu/rv32_compare_qemu_virt_riscv32/cross-compile/tests/modules/nanopb/libraries.nanopb/zephyr/zephyr.bin"
+      ],
+      "returncode": 0,
+      "wall_seconds": 1.3242556199984392
+    },
+    {
+      "name": "demo-kernel.mutex",
+      "engine": null,
+      "phase": "demo",
+      "command": [
+        "/home/eastwillow/Documents/boot_Zephyr_in_rv32emu/zvenv/bin/python",
+        "/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/.ci/zephyr/compare-demo.py",
+        "--out",
+        "/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/build/zephyr-resource-rerun/demos/kernel.mutex",
+        "--repeat",
+        "7",
+        "--qemu-elf",
+        "/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/build/zephyr-resource-rerun/main-qemu/rv32_compare_qemu_virt_riscv32/cross-compile/tests/kernel/mutex/mutex_api/kernel.mutex/zephyr/zephyr.elf",
+        "--qemu-bin",
+        "/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/build/zephyr-resource-rerun/main-qemu/rv32_compare_qemu_virt_riscv32/cross-compile/tests/kernel/mutex/mutex_api/kernel.mutex/zephyr/zephyr.bin",
+        "--rv32emu-elf",
+        "/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/build/zephyr-resource-rerun/main-rv32emu/rv32_compare_qemu_virt_riscv32/cross-compile/tests/kernel/mutex/mutex_api/kernel.mutex/zephyr/zephyr.elf",
+        "--rv32emu-bin",
+        "/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/build/zephyr-resource-rerun/main-rv32emu/rv32_compare_qemu_virt_riscv32/cross-compile/tests/kernel/mutex/mutex_api/kernel.mutex/zephyr/zephyr.bin"
+      ],
+      "returncode": 0,
+      "wall_seconds": 1.7806224230007501
+    },
+    {
+      "name": "demo-libraries.heap",
+      "engine": null,
+      "phase": "demo",
+      "command": [
+        "/home/eastwillow/Documents/boot_Zephyr_in_rv32emu/zvenv/bin/python",
+        "/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/.ci/zephyr/compare-demo.py",
+        "--out",
+        "/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/build/zephyr-resource-rerun/demos/libraries.heap",
+        "--repeat",
+        "7",
+        "--qemu-elf",
+        "/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/build/zephyr-resource-rerun/main-qemu/rv32_compare_qemu_virt_riscv32/cross-compile/tests/lib/heap/libraries.heap/zephyr/zephyr.elf",
+        "--qemu-bin",
+        "/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/build/zephyr-resource-rerun/main-qemu/rv32_compare_qemu_virt_riscv32/cross-compile/tests/lib/heap/libraries.heap/zephyr/zephyr.bin",
+        "--rv32emu-elf",
+        "/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/build/zephyr-resource-rerun/main-rv32emu/rv32_compare_qemu_virt_riscv32/cross-compile/tests/lib/heap/libraries.heap/zephyr/zephyr.elf",
+        "--rv32emu-bin",
+        "/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/build/zephyr-resource-rerun/main-rv32emu/rv32_compare_qemu_virt_riscv32/cross-compile/tests/lib/heap/libraries.heap/zephyr/zephyr.bin"
+      ],
+      "returncode": 0,
+      "wall_seconds": 104.29690975999983
+    },
+    {
+      "name": "boot-gcc",
+      "engine": "rv32emu",
+      "phase": "boot",
+      "command": [
+        "/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/.ci/boot-zephyr.sh"
+      ],
+      "returncode": 0,
+      "wall_seconds": 3.8385674029996153
+    },
+    {
+      "name": "boot-xpack",
+      "engine": "rv32emu",
+      "phase": "boot",
+      "command": [
+        "/home/eastwillow/.codex-coding/worktrees/zephyr-qemu-validation/rv32emu/.ci/boot-zephyr.sh"
+      ],
+      "returncode": 0,
+      "wall_seconds": 3.7741521039934014
+    }
+  ],
+  "expected_phases": [
+    "emulator-build",
+    "main-rv32emu-build",
+    "main-qemu-build",
+    "cpp-rv32emu-build",
+    "cpp-qemu-build",
+    "main-rv32emu-run",
+    "cpp-rv32emu-run",
+    "main-qemu-run",
+    "cpp-qemu-run",
+    "demo-libraries.nanopb",
+    "demo-kernel.mutex",
+    "demo-libraries.heap",
+    "boot-gcc",
+    "boot-xpack"
+  ],
+  "coverage": {
+    "rv32emu": {
+      "configurations": 5035,
+      "status_counts": {
+        "filtered": 4449,
+        "passed": 542,
+        "built_not_run": 43,
+        "error": 1
+      },
+      "case_counts_in_passing_suites": {
+        "passed": 5332,
+        "None": 487,
+        "skipped": 276
+      }
+    },
+    "qemu": {
+      "configurations": 5035,
+      "status_counts": {
+        "filtered": 4449,
+        "passed": 542,
+        "built_not_run": 43,
+        "error": 1
+      },
+      "case_counts_in_passing_suites": {
+        "passed": 5332,
+        "None": 487,
+        "skipped": 276
+      }
+    }
+  },
+  "cpp_supplement": {
+    "rv32emu": [
+      [
+        "sample.cpp.helloworld",
+        "passed"
+      ]
+    ],
+    "qemu": [
+      [
+        "sample.cpp.helloworld",
+        "passed"
+      ]
+    ]
+  },
+  "demos": {
+    "libraries.nanopb": {
+      "measurement": "Host launch-to-ztest-verdict; includes firmware and boot",
+      "seconds": {
+        "qemu": [
+          0.0761403199940105,
+          0.0759181909961626,
+          0.07518949699442601,
+          0.07574780299910344,
+          0.07583664300182136,
+          0.07539732599980198,
+          0.07531999699858716
+        ],
+        "rv32emu": [
+          0.007434223000018392,
+          0.008354906996828504,
+          0.009623597004974727,
+          0.007470882999768946,
+          0.007270363996212836,
+          0.007432902995788027,
+          0.007396524000796489
+        ]
+      },
+      "median_seconds": {
+        "qemu": 0.07574780299910344,
+        "rv32emu": 0.007434223000018392
+      },
+      "case_outcomes": [
+        [
+          "PASS",
+          "test_nanopb_lib"
+        ],
+        [
+          "PASS",
+          "test_nanopb_nested"
+        ],
+        [
+          "PASS",
+          "test_nanopb_simple"
+        ]
+      ],
+      "suite_names": [
+        "nanopb_tests"
+      ],
+      "qemu_over_rv32emu_median": 10.189067909170339
+    },
+    "kernel.mutex": {
+      "measurement": "Host launch-to-ztest-verdict; includes firmware and boot",
+      "seconds": {
+        "qemu": [
+          0.11016242999903625,
+          0.10955976500554243,
+          0.110304610003368,
+          0.10703230399667518,
+          0.10941004699998302,
+          0.11097799400158692,
+          0.108661332000338
+        ],
+        "rv32emu": [
+          0.03905097200185992,
+          0.037376355001470074,
+          0.03947352900286205,
+          0.041786441004660446,
+          0.03929246999905445,
+          0.038722495002730284,
+          0.03968042699852958
+        ]
+      },
+      "median_seconds": {
+        "qemu": 0.10955976500554243,
+        "rv32emu": 0.03929246999905445
+      },
+      "case_outcomes": [
+        [
+          "PASS",
+          "test_complex_inversion"
+        ],
+        [
+          "PASS",
+          "test_mutex_define"
+        ],
+        [
+          "PASS",
+          "test_mutex_init"
+        ],
+        [
+          "PASS",
+          "test_mutex_recursive"
+        ],
+        [
+          "PASS",
+          "test_mutex_reent_lock_no_wait"
+        ],
+        [
+          "PASS",
+          "test_mutex_reent_lock_timeout_fail"
+        ],
+        [
+          "PASS",
+          "test_chain_boost_3hops_4threads"
+        ],
+        [
+          "PASS",
+          "test_chain_boost_3threads"
+        ],
+        [
+          "PASS",
+          "test_chain_walk_hop_cap_truncates"
+        ],
+        [
+          "PASS",
+          "test_handoff_to_owner_already_holding_another_mutex"
+        ],
+        [
+          "PASS",
+          "test_held_mutexes_highest_waiter_scans_all_entries"
+        ],
+        [
+          "PASS",
+          "test_held_mutexes_list_and_handoff"
+        ],
+        [
+          "PASS",
+          "test_multi_mutex_partial_unlock_priority"
+        ],
+        [
+          "PASS",
+          "test_mutex_lock_unlock"
+        ],
+        [
+          "PASS",
+          "test_mutex_pended_on_cleared_on_grant"
+        ],
+        [
+          "PASS",
+          "test_mutex_pended_on_cleared_on_timeout"
+        ],
+        [
+          "PASS",
+          "test_mutex_priority_inheritance"
+        ],
+        [
+          "PASS",
+          "test_mutex_reent_lock_forever"
+        ],
+        [
+          "PASS",
+          "test_mutex_reent_lock_timeout_pass"
+        ],
+        [
+          "PASS",
+          "test_mutex_timeout_race_during_priority_inversion"
+        ],
+        [
+          "PASS",
+          "test_no_false_deadlock_finite_timeout_cycle"
+        ],
+        [
+          "PASS",
+          "test_no_false_deadlock_intermediate_hop_finite_timeout"
+        ],
+        [
+          "PASS",
+          "test_no_wait_no_boost_no_list"
+        ],
+        [
+          "PASS",
+          "test_orig_prio_floor_when_boosted_at_second_lock"
+        ],
+        [
+          "PASS",
+          "test_recursive_held_mutexes_single_entry"
+        ],
+        [
+          "PASS",
+          "test_timeout_multi_mutex_priority_down"
+        ]
+      ],
+      "suite_names": [
+        "mutex_api",
+        "mutex_api_1cpu"
+      ],
+      "qemu_over_rv32emu_median": 2.788314529684159
+    },
+    "libraries.heap": {
+      "measurement": "Host launch-to-ztest-verdict; includes firmware and boot",
+      "seconds": {
+        "qemu": [
+          6.896466113001225,
+          7.074965473002521,
+          6.992101895004453,
+          6.9086103810041095,
+          6.902601526999206,
+          6.880756024002039,
+          6.878269152002758
+        ],
+        "rv32emu": [
+          7.964684384998691,
+          7.910897174995625,
+          7.961519618998864,
+          7.916637980000814,
+          7.703295036000782,
+          7.796471247005684,
+          7.7145645700002206
+        ]
+      },
+      "median_seconds": {
+        "qemu": 6.902601526999206,
+        "rv32emu": 7.910897174995625
+      },
+      "case_outcomes": [
+        [
+          "PASS",
+          "test_big_heap"
+        ],
+        [
+          "PASS",
+          "test_fragmentation"
+        ],
+        [
+          "PASS",
+          "test_heap_listeners"
+        ],
+        [
+          "PASS",
+          "test_heap_overhead"
+        ],
+        [
+          "PASS",
+          "test_largest_free_block"
+        ],
+        [
+          "PASS",
+          "test_realloc"
+        ],
+        [
+          "PASS",
+          "test_small_heap"
+        ]
+      ],
+      "suite_names": [
+        "lib_heap"
+      ],
+      "qemu_over_rv32emu_median": 0.8725434516854307
+    }
+  },
+  "resources": {
+    "policy": {
+      "cpu_quota_percent_one_core_scale": 150,
+      "cpu_affinity": [
+        10,
+        11
+      ],
+      "memory_high_bytes": 1610612736,
+      "memory_max_bytes": 2147483648,
+      "memory_swap_max_bytes": 0,
+      "tasks_max": 128,
+      "nice": 10,
+      "twister_jobs": 1,
+      "compiler_jobs": 2,
+      "monitor_interval_seconds": 2,
+      "host_memory_abort_threshold_bytes": 2147483648,
+      "host_low_memory_grace_seconds": 10,
+      "scope": "Rebuild and execute full matched test/sample inventory, xPack C++ supplement, four prepared CI boot checks, seven repetitions of all three comparison workloads"
+    },
+    "samples": 19579,
+    "peak_campaign_memory_bytes": 1612673024,
+    "peak_campaign_rss_bytes": 1225437184,
+    "peak_campaign_pss_bytes": 998975488,
+    "peak_campaign_cpu_percent_one_core_scale": 151.51191277152842,
+    "min_host_memory_available_bytes": 7214583808,
+    "peak_campaign_swap_bytes": 0,
+    "resource_abort": null,
+    "last_campaign_memory_events": {
+      "low": 0,
+      "high": 255723,
+      "max": 0,
+      "oom": 0,
+      "oom_kill": 0,
+      "oom_group_kill": 0,
+      "sock_throttled": 0
+    },
+    "terminal_unit": {
+      "ActiveState": "active",
+      "SubState": "exited",
+      "MainPID": "0",
+      "Result": "success",
+      "ExecMainStatus": "0",
+      "ControlGroup": "",
+      "MemoryPeak": "1612673024",
+      "MemorySwapPeak": "0",
+      "CPUUsageNSec": "50146710658000"
+    },
+    "finished_at_utc": "2026-10-13T05:13:12.453651+00:00"
+  },
+  "resource_samples": 19579,
+  "maximum_sampling_gap_seconds": 2.299433,
+  "invalid_limit_samples": [],
+  "publication": "docs/zephyr-results/2026-10-13/resource-rerun"
+}

@@ -1,0 +1,18 @@
+{
+  "cpu_quota_percent_one_core_scale": 150,
+  "cpu_affinity": [
+    10,
+    11
+  ],
+  "memory_high_bytes": 1610612736,
+  "memory_max_bytes": 2147483648,
+  "memory_swap_max_bytes": 0,
+  "tasks_max": 128,
+  "nice": 10,
+  "twister_jobs": 1,
+  "compiler_jobs": 2,
+  "monitor_interval_seconds": 2,
+  "host_memory_abort_threshold_bytes": 2147483648,
+  "host_low_memory_grace_seconds": 10,
+  "scope": "Rebuild and execute full matched test/sample inventory, xPack C++ supplement, four prepared CI boot checks, seven repetitions of all three comparison workloads"
+}

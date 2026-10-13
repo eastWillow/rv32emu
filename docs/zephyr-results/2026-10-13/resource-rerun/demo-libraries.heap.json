@@ -1,0 +1,61 @@
+{
+  "measurement": "Host launch-to-ztest-verdict; includes firmware and boot",
+  "seconds": {
+    "qemu": [
+      6.896466113001225,
+      7.074965473002521,
+      6.992101895004453,
+      6.9086103810041095,
+      6.902601526999206,
+      6.880756024002039,
+      6.878269152002758
+    ],
+    "rv32emu": [
+      7.964684384998691,
+      7.910897174995625,
+      7.961519618998864,
+      7.916637980000814,
+      7.703295036000782,
+      7.796471247005684,
+      7.7145645700002206
+    ]
+  },
+  "median_seconds": {
+    "qemu": 6.902601526999206,
+    "rv32emu": 7.910897174995625
+  },
+  "case_outcomes": [
+    [
+      "PASS",
+      "test_big_heap"
+    ],
+    [
+      "PASS",
+      "test_fragmentation"
+    ],
+    [
+      "PASS",
+      "test_heap_listeners"
+    ],
+    [
+      "PASS",
+      "test_heap_overhead"
+    ],
+    [
+      "PASS",
+      "test_largest_free_block"
+    ],
+    [
+      "PASS",
+      "test_realloc"
+    ],
+    [
+      "PASS",
+      "test_small_heap"
+    ]
+  ],
+  "suite_names": [
+    "lib_heap"
+  ],
+  "qemu_over_rv32emu_median": 0.8725434516854307
+}

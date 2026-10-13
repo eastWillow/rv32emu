@@ -95,3 +95,6 @@ hashes: [provenance.json](provenance.json). Final record/hash audit:
 commands, and per-guest hashes remain in the worktree under
 `build/zephyr-validation/`. Reproduction commands are in
 [zephyr-compare.md](../../zephyr-compare.md).
+
+A later full rebuild and runtime campaign under explicit CPU/memory limits is
+recorded in [the resource-limited rerun report](resource-rerun/REPORT.md).

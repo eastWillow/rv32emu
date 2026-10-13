@@ -1,0 +1,75 @@
+{
+  "rv32emu_head": "906e73b7a9d3e821f07cd20d8f3784eb5bfaa05d",
+  "zephyr_head": "bbc6385f0a2c6476b5f191b3101d902303a34f50",
+  "picolibc_head": "ad4203cecf0fd65f653835fe65c20f1b7924e0ca",
+  "host": "Linux-7.0.0-38-generic-x86_64-with-glibc2.43",
+  "compiler": "riscv64-unknown-elf-gcc (14.2.0+19) 14.2.0",
+  "qemu": "QEMU emulator version 10.2.1 (Debian 1:10.2.1+ds-1ubuntu3.2)",
+  "emulator_sha256": "bf5e26c9c42a9d60392ef065f31498d6812b798daf254c72bea6d1d3f7fc18c4",
+  "opensbi_sha256": "fe1c440576941f2fdf9db31a0fe1e19a7289c8ec5ed1dfbbc993f2361c445988",
+  "zephyr_patch_sha256": "3544ab18564ac92e6746600be704430be4003ac7a7ffc9d0a8a5869974122a3f",
+  "ci_boot_guest_images": {
+    "gcc": {
+      "hello_world": {
+        "binary_sha256": "e394ef2a8a7cf71ef796d73956318e247f216d262a739fd4b374cae4aabcd8d5",
+        "native_tls": true,
+        "s_mode": true,
+        "clock_65_mhz": true,
+        "image_source": "Prepared CI guest; freshly booted with the validation worktree binary"
+      },
+      "synchronization": {
+        "binary_sha256": "b92f300822d19f733096853a364d5a3a7da704f3d80fa7531755f58b362f844b",
+        "native_tls": true,
+        "s_mode": true,
+        "clock_65_mhz": true,
+        "image_source": "Prepared CI guest; freshly booted with the validation worktree binary"
+      }
+    },
+    "xpack": {
+      "hello_world": {
+        "binary_sha256": "5508df2434e2a6e2c8e74860456eceb78e38c6e0da0cb1f69f2b895cbb8204db",
+        "native_tls": false,
+        "s_mode": true,
+        "clock_65_mhz": true,
+        "image_source": "Prepared CI guest; freshly booted with the validation worktree binary"
+      },
+      "synchronization": {
+        "binary_sha256": "a9506cfd65f3fffafb589b9489408166bd5f36b070581eed161a370975b39d8d",
+        "native_tls": false,
+        "s_mode": true,
+        "clock_65_mhz": true,
+        "image_source": "Prepared CI guest; freshly booted with the validation worktree binary"
+      }
+    }
+  },
+  "effective_emulator_configuration": {
+    "CONFIG_SYSTEM": "y",
+    "CONFIG_INTERPRETER_ONLY": "y",
+    "CONFIG_JIT": "",
+    "CONFIG_T2C": "",
+    "CONFIG_GOLDFISH_RTC": "y",
+    "CONFIG_VIRTIO_NET": "n"
+  },
+  "modules": {
+    "picolibc": "ad4203cecf0fd65f653835fe65c20f1b7924e0ca",
+    "dhara": "6f163ca05e174b168b4d148160b50eeaeeb561fc",
+    "fatfs": "4f60a12c58c3de4246857ad87c40239ecd93349b",
+    "liblc3": "48bbd3eacd36e99a57317a0a4867002e0b09e183",
+    "libmctp": "b6be45dfc5c67c43c3a5e12589ae3845ea00ab5e",
+    "libsbc": "8e1beda02acb8972e29e6edbb423f7cafe16e445",
+    "littlefs": "e9a8638fc228e43a3156ed3ac602229af3e3c1d5",
+    "mbedtls": "c43f34b93797e81fd0257c30004dcd0ae332ae51",
+    "mldsa-native": "3fc19982839305d305071f0de0c540bc9c9bea8a",
+    "nanopb": "0f6d088e777a33dd7b54297f137ef10d745c5da8",
+    "tf-psa-crypto": "765af96a20a2b408474dcd950372ba9af4d26b62",
+    "zcbor": "9164bd18dcd88ff9d9ef98279501fc1093571017",
+    "cmsis": "512cc7e895e8491696b61f7ba8066b4a182569b8",
+    "cmsis-dsp": "45d23287f5b41be49612281a5e7c802c6a415388",
+    "mipi-sys-t": "5a9d6055b62edc54566d6d0034d9daec91749b98"
+  },
+  "module_local_changes": {},
+  "comparison_runner_sha256": "69346a4522bc244d410df4c27e9e73dc042c19575e98c62033aeeada06ad753c",
+  "cpu_model": "AMD Ryzen AI 9 HX 370 w/ Radeon 890M",
+  "rv32emu_validation_head": "32ae0b2989756f9bf7cc13cc33588f804174d394",
+  "guest_builds": "Full matched inventory freshly built in this rerun; ccache allowed. Four prepared CI boot images reused."
+}

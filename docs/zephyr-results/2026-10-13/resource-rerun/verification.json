@@ -1,0 +1,50 @@
+{
+  "verified_at_utc": "2026-10-13T05:15:25.723561+00:00",
+  "source_head": "32ae0b2989756f9bf7cc13cc33588f804174d394",
+  "sources_and_modules_match": true,
+  "emulator_sha256": "bf5e26c9c42a9d60392ef065f31498d6812b798daf254c72bea6d1d3f7fc18c4",
+  "engines": {
+    "rv32emu": {
+      "inventory": 5035,
+      "passed_configurations": 542,
+      "cpp_passed": 1,
+      "guest_records_verified": 543,
+      "runner_verdicts": {
+        "passed": 439,
+        "harness_stop": 104
+      },
+      "case_counts": {
+        "passed": 5332,
+        "None": 487,
+        "skipped": 276
+      }
+    },
+    "qemu": {
+      "inventory": 5035,
+      "passed_configurations": 542,
+      "cpp_passed": 1,
+      "guest_records_verified": 543,
+      "runner_verdicts": {
+        "passed": 439,
+        "harness_stop": 104
+      },
+      "case_counts": {
+        "passed": 5332,
+        "None": 487,
+        "skipped": 276
+      }
+    }
+  },
+  "demo_runs": 42,
+  "boot_checks": 4,
+  "resources": {
+    "samples": 19579,
+    "maximum_sampling_gap_seconds": 2.299433,
+    "limits_verified": true,
+    "no_oom_hard_limit_or_swap": true,
+    "peak_charged_bytes": 1612673024,
+    "peak_rss_bytes": 1225437184,
+    "peak_pss_bytes": 998975488,
+    "minimum_host_available_bytes": 7214583808
+  }
+}
