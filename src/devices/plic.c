@@ -73,7 +73,7 @@ void plic_write(plic_t *plic, const uint32_t addr, uint32_t value)
     case PLIC_INTR_CLAIM_OR_COMPLETE:
     case PLIC_INTR_CLAIM_OR_COMPLETE_CTX1:
         /* completion */
-        if (plic->ie & (1U << value))
+        if (value > 0 && value < 32 && (plic->ie & (1U << value)))
             plic->masked &= ~(1U << value);
         break;
     default:
