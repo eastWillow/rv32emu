@@ -17,7 +17,7 @@ Options:
     --have-emcc         Check if Emscripten (emcc) is available (exit 0/1)
     --have-sdl2         Check if SDL2 is available (exit 0/1)
     --have-sdl2-mixer   Check if SDL2_mixer is available (exit 0/1)
-    --have-llvm         Check if supported LLVM libraries are available (exit 0/1)
+    --have-llvm         Check for supported LLVM libraries (exit 0/1)
     --have-llvm18       Legacy alias for --have-llvm
     --llvm-config       Print the supported llvm-config selected for T2C
     --have-riscv-toolchain  Check if RISC-V toolchain exists (exit 0/1)

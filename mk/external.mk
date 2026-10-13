@@ -197,19 +197,20 @@ endef
 EXTERNAL_DATA_STATIC := DOOM QUAKE TIMIDITY BUILDROOT SIMPLEFS
 $(foreach T,$(EXTERNAL_DATA_STATIC),$(eval $(call download-extract-verify,$(T))))
 
+define fetch-pinned-source
+	$(Q)git init -q $@
+	$(Q)git -C $@ remote add origin $(1)
+	$(Q)git -C $@ fetch -q --depth=1 origin $(2)
+	$(Q)git -C $@ checkout -q --detach FETCH_HEAD
+endef
+
 $(NUTTX_DATA):
 	$(call prologue,$@)
-	$(Q)git init -q $@
-	$(Q)git -C $@ remote add origin $(NUTTX_REPO)
-	$(Q)git -C $@ fetch -q --depth=1 origin $(NUTTX_VERSION)
-	$(Q)git -C $@ checkout -q --detach FETCH_HEAD
+	$(call fetch-pinned-source,$(NUTTX_REPO),$(NUTTX_VERSION))
 
 $(NUTTX_APPS_DATA):
 	$(call prologue,$@)
-	$(Q)git init -q $@
-	$(Q)git -C $@ remote add origin $(NUTTX_APPS_REPO)
-	$(Q)git -C $@ fetch -q --depth=1 origin $(NUTTX_APPS_VERSION)
-	$(Q)git -C $@ checkout -q --detach FETCH_HEAD
+	$(call fetch-pinned-source,$(NUTTX_APPS_REPO),$(NUTTX_APPS_VERSION))
 
 # Linux kernel: special rule with lazy network detection (avoids parse-time wget)
 # Detects latest patch version and SHA only when this target is actually built
