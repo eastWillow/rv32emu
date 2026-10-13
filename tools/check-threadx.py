@@ -15,5 +15,8 @@ except subprocess.TimeoutExpired:
     sys.exit("ThreadX smoke test timed out")
 print(result.stdout, end="")
 print(result.stderr, end="", file=sys.stderr)
-if result.returncode or "ThreadX smoke test PASS" not in result.stdout.splitlines():
+if (
+    result.returncode
+    or "ThreadX smoke test PASS" not in result.stdout.splitlines()
+):
     sys.exit("ThreadX smoke test failed")
