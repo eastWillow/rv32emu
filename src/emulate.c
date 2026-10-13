@@ -426,6 +426,8 @@ static uint32_t *csr_get_ptr(riscv_t *rv, uint32_t csr)
         return (uint32_t *) (&rv->csr_mcause);
     case CSR_MTVAL: /* Machine Trap Value */
         return (uint32_t *) (&rv->csr_mtval);
+    case CSR_MIE: /* Machine Interrupt Enable */
+        return &rv->csr_mie;
     case CSR_MIP: /* Machine Interrupt Pending */
         return (uint32_t *) (&rv->csr_mip);
 
@@ -4121,6 +4123,7 @@ static void _trap_handler(riscv_t *rv)
     } else { /* machine */
         const uint32_t mstatus_mie =
             (rv->csr_mstatus & MSTATUS_MIE) >> MSTATUS_MIE_SHIFT;
+        rv->csr_mstatus &= ~(MSTATUS_MPIE | MSTATUS_MPP);
         rv->csr_mstatus |= (mstatus_mie << MSTATUS_MPIE_SHIFT);
         rv->csr_mstatus &= ~(MSTATUS_MIE);
         rv->csr_mstatus |= (rv->priv_mode << MSTATUS_MPP_SHIFT);
@@ -4153,7 +4156,7 @@ static void _trap_handler(riscv_t *rv)
     case 1:
         /* MSB of code is used to indicate whether the trap is interrupt
          * or exception, so it is not considered as the 'real' code */
-        rv->PC = base + 4 * (cause & MASK(31));
+        rv->PC = base + ((cause & (1U << 31)) ? 4 * (cause & MASK(31)) : 0);
         break;
     }
     IIF(RV32_HAS(SYSTEM))(if (rv->trap_cnt) __trap_handler(rv);, )
@@ -4216,6 +4219,8 @@ void ecall_handler(riscv_t *rv)
                RV_PRIV_S_MODE) { /* trap to SBI syscall handler */
         rv->PC += 4;
         syscall_handler(rv);
+    } else {
+        SET_CAUSE_AND_TVAL_THEN_TRAP(rv, ECALL_M, 0);
     }
 #else
     SET_CAUSE_AND_TVAL_THEN_TRAP(rv, ECALL_M, 0);

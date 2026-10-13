@@ -52,3 +52,6 @@ tests/scimark2/
 __pycache__/
 src/minimal_dtb.h
 src/rv32emu_config.h
+
+# Machine trap regression
+build/machine-traps

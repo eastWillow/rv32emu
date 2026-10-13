@@ -155,7 +155,7 @@ GUEST_ASM_CHECK_TARGETS += check-jit-loop-profile
 endif
 endif
 ifeq ($(CONFIG_Zicsr)$(GUEST_ASM_ZICSR_WORKS),yy)
-GUEST_ASM_CHECK_TARGETS += check-register-loop-cycles check-loop-shapes-csr
+GUEST_ASM_CHECK_TARGETS += check-register-loop-cycles check-loop-shapes-csr check-machine-traps
 endif
 ifeq ($(CONFIG_EXT_C)$(GUEST_ASM_C_WORKS),yy)
 GUEST_ASM_CHECK_TARGETS += check-loop-shapes-rvc
@@ -276,6 +276,9 @@ check-jit-loop-profile: $(BIN) tests/jit-loop-profile.S tests/test-jit-loop-prof
 	$(Q)$(call guest-asm-build,jit-loop-profile,rv32i)
 	$(Q)python3 tests/test-jit-loop-profile.py $(BIN) $(OUT)/jit-loop-profile $(CROSS_COMPILE)nm
 $(eval $(call guest-asm-check-target,jit-memory-address,rv32ic,-rvc))
+
+EXPECTED_machine-traps = Machine trap state OK
+$(eval $(call guest-asm-check-target,machine-traps,rv32i_zicsr))
 
 $(eval $(call guest-asm-check-target,lrsc,rv32ia))
 $(eval $(call guest-asm-check-target,misalign-page-fault,rv32i_zicsr))

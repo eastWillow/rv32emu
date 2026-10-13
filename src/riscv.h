@@ -235,9 +235,7 @@ enum TRAP_CODE {
     SUPERVISOR_EXTERNAL_INTR = (1U << 31) | 9, /* Supervisor external interrupt */
     ECALL_U = 8,                               /* Environment call from U-mode */
 #endif /* RV32_HAS(SYSTEM) */
-#if !RV32_HAS(SYSTEM)
     ECALL_M = 11,              /* Environment call from M-mode */
-#endif /* !RV32_HAS(SYSTEM) */
 };
 /* clang-format on */
 

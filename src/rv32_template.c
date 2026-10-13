@@ -599,13 +599,20 @@ RVOP(hret, {
 /* MRET: return from traps in M-mode */
 RVOP(mret, {
     rv->priv_mode = (rv->csr_mstatus & MSTATUS_MPP) >> MSTATUS_MPP_SHIFT;
-    rv->csr_mstatus &= ~(MSTATUS_MPP);
+#if RV32_HAS(SYSTEM)
+    if (rv->priv_mode != RV_PRIV_M_MODE)
+        rv->trap_cnt = 0;
+    else if (rv->trap_cnt)
+        rv->trap_cnt--;
+#endif
+    rv->csr_mstatus &= ~(MSTATUS_MPP | MSTATUS_MIE);
 
     const uint32_t mstatus_mpie =
         (rv->csr_mstatus & MSTATUS_MPIE) >> MSTATUS_MPIE_SHIFT;
     rv->csr_mstatus |= (mstatus_mpie << MSTATUS_MIE_SHIFT);
     rv->csr_mstatus |= MSTATUS_MPIE;
 
+    rv->csr_cycle = cycle;
     rv->PC = rv->csr_mepc;
     return true;
 })
