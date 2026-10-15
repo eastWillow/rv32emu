@@ -1031,8 +1031,8 @@ FORCE_INLINE bool insn_is_branch(uint16_t opcode)
 #define RVOP_TAIL_INTER(rv, target, cycle, PC) \
     MUST_TAIL return (target)->impl(rv, target, cycle, PC)
 #if RV32_HAS(SYSTEM) && RV32_HAS(BLOCK_CHAINING)
-/* System-mode chains return to rv_step at the slice boundary, where pending
- * interrupts and traps are checked.
+/* Chain native edges within the cycle slice so SYSTEM can check traps and
+ * interrupts in rv_step at the slice boundary.
  */
 #define RVOP_TAIL(rv, target, cycle, PC)                            \
     do {                                                            \
@@ -1055,13 +1055,8 @@ FORCE_INLINE bool insn_is_branch(uint16_t opcode)
     RVOP_TAIL_INTRA(rv, target, cycle, PC)
 #endif
 
-/* Keep learned native edges in a tail-call chain while the current cycle slice
- * has budget. SYSTEM builds return to rv_step at the slice boundary so pending
- * traps and interrupts can be checked. In JIT builds the chain enters only
- * blocks T1 cannot compile; any other block is headed by do_enter_dispatch(),
- * which returns to rv_step for profiling. WASM keeps its yield-aware path.
- */
 #if RV32_HAS(SYSTEM) && RV32_HAS(BLOCK_CHAINING)
+/* Learned branch edges stop while a trap is pending. */
 #define RVOP_NATIVE_BRANCH_TAIL(rv, target, cycle, PC)                  \
     do {                                                                \
         if (!(rv)->trap_cnt) {                                          \
