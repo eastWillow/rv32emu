@@ -1,8 +1,12 @@
 # System regression checks
 
-Run these commands from the repository root. They need GNU Make, a supported
-host C compiler, and a RISC-V bare-metal GCC toolchain with `objcopy`. Set
-`CROSS_COMPILE` to the toolchain prefix if the build does not detect it.
+Run these commands from the repository root. See the
+[Quick start](../README.md#quick-start) for general build dependencies.
+The [build guide](../docs/build.md) explains LLVM setup for T2C. The
+[system setup guide](../docs/system.md) covers `dtc`. These checks need GNU
+Make, a supported host C compiler, `dtc`, and a RISC-V bare-metal GCC toolchain
+with `objcopy`. Set `CROSS_COMPILE` to the toolchain prefix if the build does
+not detect it.
 
 ## Pending interrupt and WFI
 
