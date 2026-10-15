@@ -47,3 +47,32 @@ that instructions on the mapped page retire before a fetch fault on the next
 page is delivered. Local runs passed with chaining disabled and enabled.
 This test does not cover a 32-bit instruction that straddles a page boundary
 when the C extension is enabled.
+
+## Tier-2 JIT build
+
+LLVM 18–21 development libraries are required. The build detects a compatible
+`llvm-config`; pass `LLVM_CONFIG=llvm-config-21` to pin one. The
+`system_jit_defconfig` enables both JIT tiers. These commands check all three
+test configurations in that build:
+
+```sh
+make distclean
+make system_jit_defconfig
+make LLVM_CONFIG=llvm-config-21 ENABLE_ROOTFS_EXT4=0 check-wfi-pending
+test -f build/t2c.o
+
+make distclean
+make system_jit_defconfig
+make LLVM_CONFIG=llvm-config-21 ENABLE_ELF_LOADER=1 \
+    ENABLE_BLOCK_CHAINING=0 check-fetch-page-boundary
+test -f build/t2c.o
+
+make distclean
+make system_jit_defconfig
+make LLVM_CONFIG=llvm-config-21 ENABLE_ELF_LOADER=1 \
+    ENABLE_BLOCK_CHAINING=1 check-fetch-page-boundary
+test -f build/t2c.o
+```
+
+All three local runs passed and built `t2c.o`. These short guests do not prove
+that execution reached T2C tier-up. Hosted CI has not verified this matrix.
